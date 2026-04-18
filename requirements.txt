@@ -1,0 +1,7 @@
+streamlit>=1.32.0
+openai>=1.14.0
+supabase>=2.3.0
+requests>=2.31.0
+beautifulsoup4>=4.12.0
+fpdf2>=2.7.9
+lxml>=5.1.0
