@@ -373,12 +373,24 @@ def analyze_accessibility(url: str, html_snippet: str) -> dict:
         model="gpt-4o",
         messages=[{"role": "user", "content": prompt}],
         temperature=0.2,
-        max_tokens=4000,
+        max_tokens=8000,
         response_format={"type": "json_object"},
     )
 
     raw = response.choices[0].message.content
-    result = json.loads(raw)
+    try:
+        result = json.loads(raw)
+    except json.JSONDecodeError:
+        # Attempt to salvage truncated JSON by closing it
+        salvaged = raw.rstrip().rstrip(",")
+        for suffix in ("]}", "\"]}", "}]}", "\"}]}"):
+            try:
+                result = json.loads(salvaged + suffix)
+                break
+            except json.JSONDecodeError:
+                continue
+        else:
+            raise ValueError("AI returned invalid JSON. The page may be too complex. Try a simpler URL.")
 
     # Normalize & enrich
     issues = result.get("issues", [])
