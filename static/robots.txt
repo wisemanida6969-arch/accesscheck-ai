@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /app/static/checkout.html
+
+Sitemap: https://access.trytimeback.com/app/static/sitemap.xml
