@@ -740,15 +740,14 @@ def main():
                 </div>""", unsafe_allow_html=True)
 
         # ─── Footer ───
-        st.markdown("""
-        <div style="margin-top:60px; border-top:1px solid #e5e7eb; padding-top:40px;">
-
+        st.components.v1.html("""
+        <div style="font-family:'Inter',sans-serif; margin-top:60px; border-top:1px solid #e5e7eb; padding-top:40px;">
           <div style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:32px; margin-bottom:40px;">
 
             <div style="min-width:200px;">
-              <div style="font-weight:700; color:#1e40af; font-size:1.1rem; margin-bottom:12px;">♿ AccessCheck AI</div>
-              <div style="color:#6b7280; font-size:0.88rem; line-height:1.6;">
-                AI-powered WCAG 2.1 & ADA<br>accessibility analysis tool.<br>
+              <div style="font-weight:700; color:#1e40af; font-size:1.1rem; margin-bottom:12px;">&#9855; AccessCheck AI</div>
+              <div style="color:#6b7280; font-size:0.88rem; line-height:1.7;">
+                AI-powered WCAG 2.1 &amp; ADA<br>accessibility analysis tool.<br>
                 Built for developers, designers,<br>and compliance teams.
               </div>
             </div>
@@ -763,7 +762,7 @@ def main():
               </div>
             </div>
 
-            <div style="min-width:140px;">
+            <div style="min-width:160px;">
               <div style="font-weight:600; color:#374151; margin-bottom:12px; font-size:0.9rem;">Legal</div>
               <div style="display:flex; flex-direction:column; gap:8px; font-size:0.88rem; color:#6b7280;">
                 <span>Terms of Service</span>
@@ -775,34 +774,33 @@ def main():
             </div>
 
             <div style="min-width:200px;">
-              <div style="font-weight:600; color:#374151; margin-bottom:12px; font-size:0.9rem;">Contact & Support</div>
+              <div style="font-weight:600; color:#374151; margin-bottom:12px; font-size:0.9rem;">Contact &amp; Support</div>
               <div style="display:flex; flex-direction:column; gap:8px; font-size:0.88rem; color:#6b7280;">
-                <span>📧 <a href="mailto:admin@trytimeback.com" style="color:#1e40af; text-decoration:none;">admin@trytimeback.com</a></span>
-                <span style="margin-top:4px;">Response within 24 hours</span>
-                <span style="margin-top:8px; color:#374151; font-weight:500;">Part of Trytimeback</span>
-                <span><a href="https://trytimeback.com" style="color:#1e40af; text-decoration:none;">trytimeback.com</a></span>
+                <span>&#128231; <a href="mailto:admin@trytimeback.com" style="color:#1e40af; text-decoration:none;">admin@trytimeback.com</a></span>
+                <span>Response within 24 hours</span>
+                <span style="margin-top:6px; color:#374151; font-weight:500;">Part of Trytimeback</span>
+                <span><a href="https://trytimeback.com" target="_blank" style="color:#1e40af; text-decoration:none;">trytimeback.com</a></span>
               </div>
             </div>
 
           </div>
 
-          <div style="border-top:1px solid #f3f4f6; padding-top:24px; display:flex; justify-content:space-between; flex-wrap:wrap; gap:12px; align-items:center;">
+          <div style="border-top:1px solid #f3f4f6; padding-top:20px; display:flex; justify-content:space-between; flex-wrap:wrap; gap:12px; align-items:center;">
             <div style="color:#9ca3af; font-size:0.82rem;">
-              © 2026 AccessCheck AI · All rights reserved · Powered by Trytimeback
+              &copy; 2026 AccessCheck AI &middot; All rights reserved &middot; Powered by Trytimeback
             </div>
-            <div style="color:#9ca3af; font-size:0.82rem; display:flex; gap:16px; flex-wrap:wrap;">
+            <div style="color:#9ca3af; font-size:0.82rem; display:flex; gap:12px; flex-wrap:wrap;">
               <span>Terms of Service</span>
-              <span>·</span>
+              <span>&middot;</span>
               <span>Privacy Policy</span>
-              <span>·</span>
+              <span>&middot;</span>
               <span>Cookie Policy</span>
-              <span>·</span>
+              <span>&middot;</span>
               <span>Refund Policy</span>
             </div>
           </div>
-
         </div>
-        """, unsafe_allow_html=True)
+        """, height=320)
         return
 
     # ─── Logged In ───
