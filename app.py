@@ -1223,37 +1223,11 @@ def main():
             st.components.v1.html(f"""
             <script>
               function openPaddleCheckout() {{
-                var popup = window.open('', 'paddle_checkout', 'width=900,height=900,scrollbars=yes,resizable=yes');
+                var url = '/app/static/checkout.html?token={vendor_id}&price={product_id}&email=' + encodeURIComponent('{user_email}');
+                var popup = window.open(url, 'paddle_checkout', 'width=900,height=900,scrollbars=yes,resizable=yes');
                 if (!popup) {{
                   alert('Please allow popups for this site to open checkout.');
-                  return false;
                 }}
-                popup.document.write(`
-                  <!DOCTYPE html>
-                  <html>
-                  <head>
-                    <title>Complete Your Purchase - AccessCheck AI</title>
-                    <meta charset="utf-8">
-                    <script src="https://cdn.paddle.com/paddle/v2/paddle.js"><\\/script>
-                  </head>
-                  <body style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; padding:40px; text-align:center; background:#f8fafc; margin:0;">
-                    <h2 style="color:#1e40af; margin-bottom:8px;">AccessCheck AI Pro</h2>
-                    <p style="color:#64748b; margin-top:0;">Opening secure checkout...</p>
-                    <script>
-                      Paddle.Initialize({{ token: '{vendor_id}' }});
-                      Paddle.Checkout.open({{
-                        items: [{{ priceId: '{product_id}', quantity: 1 }}],
-                        customer: {{ email: '{user_email}' }},
-                        successCallback: function() {{
-                          if (window.opener) {{ try {{ window.opener.location.reload(); }} catch(e) {{}} }}
-                          setTimeout(function() {{ window.close(); }}, 1500);
-                        }}
-                      }});
-                    <\\/script>
-                  </body>
-                  </html>
-                `);
-                popup.document.close();
                 return false;
               }}
             </script>

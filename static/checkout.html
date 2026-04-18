@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Complete Your Purchase - AccessCheck AI</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="https://cdn.paddle.com/paddle/v2/paddle.js"></script>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #f8fafc;
+      margin: 0;
+      padding: 40px 20px;
+      text-align: center;
+      color: #111827;
+    }
+    h2 { color: #1e40af; margin-bottom: 8px; }
+    p { color: #64748b; margin-top: 0; }
+    .spinner {
+      border: 4px solid #e5e7eb;
+      border-top: 4px solid #1e40af;
+      border-radius: 50%;
+      width: 40px; height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 24px auto;
+    }
+    @keyframes spin { 0%{transform:rotate(0)} 100%{transform:rotate(360deg)} }
+    #error { color: #dc2626; margin-top: 20px; display: none; }
+  </style>
+</head>
+<body>
+  <h2>AccessCheck AI Pro</h2>
+  <p>Opening secure checkout...</p>
+  <div class="spinner"></div>
+  <p id="error"></p>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get('token');
+    const priceId = params.get('price');
+    const email = params.get('email') || '';
+
+    if (!token || !priceId) {
+      document.getElementById('error').style.display = 'block';
+      document.getElementById('error').textContent = 'Missing checkout parameters.';
+    } else {
+      Paddle.Initialize({ token: token });
+      Paddle.Checkout.open({
+        items: [{ priceId: priceId, quantity: 1 }],
+        customer: email ? { email: email } : undefined,
+        successCallback: function() {
+          if (window.opener) { try { window.opener.location.reload(); } catch(e) {} }
+          setTimeout(function() { window.close(); }, 1500);
+        }
+      });
+    }
+  </script>
+</body>
+</html>
