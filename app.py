@@ -528,7 +528,6 @@ def render_paddle_checkout(user_email: str):
     paddle_html = f"""
     <script src="https://cdn.paddle.com/paddle/v2/paddle.js"></script>
     <script>
-      Paddle.Environment.set('production');
       Paddle.Initialize({{ token: '{vendor_id}' }});
     </script>
     <div style="text-align:center; padding: 24px;">
@@ -1222,9 +1221,41 @@ def main():
 
         with col2:
             st.components.v1.html(f"""
-            <script src="https://cdn.paddle.com/paddle/v2/paddle.js"></script>
             <script>
-              Paddle.Initialize({{ token: '{vendor_id}' }});
+              function openPaddleCheckout() {{
+                var popup = window.open('', 'paddle_checkout', 'width=900,height=900,scrollbars=yes,resizable=yes');
+                if (!popup) {{
+                  alert('Please allow popups for this site to open checkout.');
+                  return false;
+                }}
+                popup.document.write(`
+                  <!DOCTYPE html>
+                  <html>
+                  <head>
+                    <title>Complete Your Purchase - AccessCheck AI</title>
+                    <meta charset="utf-8">
+                    <script src="https://cdn.paddle.com/paddle/v2/paddle.js"><\\/script>
+                  </head>
+                  <body style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; padding:40px; text-align:center; background:#f8fafc; margin:0;">
+                    <h2 style="color:#1e40af; margin-bottom:8px;">AccessCheck AI Pro</h2>
+                    <p style="color:#64748b; margin-top:0;">Opening secure checkout...</p>
+                    <script>
+                      Paddle.Initialize({{ token: '{vendor_id}' }});
+                      Paddle.Checkout.open({{
+                        items: [{{ priceId: '{product_id}', quantity: 1 }}],
+                        customer: {{ email: '{user_email}' }},
+                        successCallback: function() {{
+                          if (window.opener) {{ try {{ window.opener.location.reload(); }} catch(e) {{}} }}
+                          setTimeout(function() {{ window.close(); }}, 1500);
+                        }}
+                      }});
+                    <\\/script>
+                  </body>
+                  </html>
+                `);
+                popup.document.close();
+                return false;
+              }}
             </script>
             <div style="font-family:'Inter',sans-serif; background:linear-gradient(135deg,#1e40af 0%,#3b82f6 100%); border-radius:16px; padding:32px; position:relative; overflow:hidden;">
               <div style="position:absolute; top:-20px; right:-20px; width:120px; height:120px; background:rgba(255,255,255,0.06); border-radius:50%;"></div>
@@ -1262,7 +1293,7 @@ def main():
                   </li>
                 </ul>
                 <a href="#"
-                   onclick="Paddle.Checkout.open({{ items: [{{ priceId: '{product_id}', quantity: 1 }}], customer: {{ email: '{user_email}' }} }}); return false;"
+                   onclick="return openPaddleCheckout();"
                    style="display:block; background:white; color:#1e40af; font-weight:700; padding:16px; border-radius:10px; text-decoration:none; font-size:1rem; text-align:center; cursor:pointer;">
                   Upgrade to Pro &#8594;
                 </a>
