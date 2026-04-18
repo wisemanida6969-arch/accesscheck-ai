@@ -1221,13 +1221,13 @@ def main():
             """, unsafe_allow_html=True)
 
         with col2:
-            st.markdown(f"""
+            st.components.v1.html(f"""
             <script src="https://cdn.paddle.com/paddle/v2/paddle.js"></script>
             <script>
               Paddle.Environment.set('production');
               Paddle.Initialize({{ token: '{vendor_id}' }});
             </script>
-            <div style="background:linear-gradient(135deg,#1e40af 0%,#3b82f6 100%); border-radius:16px; padding:32px; position:relative; overflow:hidden;">
+            <div style="font-family:'Inter',sans-serif; background:linear-gradient(135deg,#1e40af 0%,#3b82f6 100%); border-radius:16px; padding:32px; position:relative; overflow:hidden;">
               <div style="position:absolute; top:-20px; right:-20px; width:120px; height:120px; background:rgba(255,255,255,0.06); border-radius:50%;"></div>
               <div style="position:absolute; bottom:-30px; left:-10px; width:80px; height:80px; background:rgba(255,255,255,0.06); border-radius:50%;"></div>
               <div style="position:relative; z-index:1;">
@@ -1238,41 +1238,41 @@ def main():
                 <hr style="border:none; border-top:1px solid rgba(255,255,255,0.2); margin:20px 0;">
                 <ul style="list-style:none; padding:0; margin:0 0 28px; display:flex; flex-direction:column; gap:12px;">
                   <li style="display:flex; align-items:center; gap:10px; font-size:0.95rem; color:white;">
-                    <span style="background:rgba(255,255,255,0.2); border-radius:50%; width:20px; height:20px; display:flex; align-items:center; justify-content:center; font-size:0.75rem; flex-shrink:0;">✓</span>
+                    <span style="background:rgba(255,255,255,0.2); border-radius:50%; width:20px; height:20px; display:inline-flex; align-items:center; justify-content:center; font-size:0.75rem; flex-shrink:0;">&#10003;</span>
                     <strong>Unlimited</strong>&nbsp;website scans
                   </li>
                   <li style="display:flex; align-items:center; gap:10px; font-size:0.95rem; color:white;">
-                    <span style="background:rgba(255,255,255,0.2); border-radius:50%; width:20px; height:20px; display:flex; align-items:center; justify-content:center; font-size:0.75rem; flex-shrink:0;">✓</span>
+                    <span style="background:rgba(255,255,255,0.2); border-radius:50%; width:20px; height:20px; display:inline-flex; align-items:center; justify-content:center; font-size:0.75rem; flex-shrink:0;">&#10003;</span>
                     Full WCAG 2.1 / ADA analysis
                   </li>
                   <li style="display:flex; align-items:center; gap:10px; font-size:0.95rem; color:white;">
-                    <span style="background:rgba(255,255,255,0.2); border-radius:50%; width:20px; height:20px; display:flex; align-items:center; justify-content:center; font-size:0.75rem; flex-shrink:0;">✓</span>
+                    <span style="background:rgba(255,255,255,0.2); border-radius:50%; width:20px; height:20px; display:inline-flex; align-items:center; justify-content:center; font-size:0.75rem; flex-shrink:0;">&#10003;</span>
                     Detailed PDF reports
                   </li>
                   <li style="display:flex; align-items:center; gap:10px; font-size:0.95rem; color:white;">
-                    <span style="background:rgba(255,255,255,0.2); border-radius:50%; width:20px; height:20px; display:flex; align-items:center; justify-content:center; font-size:0.75rem; flex-shrink:0;">✓</span>
+                    <span style="background:rgba(255,255,255,0.2); border-radius:50%; width:20px; height:20px; display:inline-flex; align-items:center; justify-content:center; font-size:0.75rem; flex-shrink:0;">&#10003;</span>
                     AI-powered fix suggestions
                   </li>
                   <li style="display:flex; align-items:center; gap:10px; font-size:0.95rem; color:white;">
-                    <span style="background:rgba(255,255,255,0.2); border-radius:50%; width:20px; height:20px; display:flex; align-items:center; justify-content:center; font-size:0.75rem; flex-shrink:0;">✓</span>
+                    <span style="background:rgba(255,255,255,0.2); border-radius:50%; width:20px; height:20px; display:inline-flex; align-items:center; justify-content:center; font-size:0.75rem; flex-shrink:0;">&#10003;</span>
                     Scan history (last 10 reports)
                   </li>
                   <li style="display:flex; align-items:center; gap:10px; font-size:0.95rem; color:white;">
-                    <span style="background:rgba(255,255,255,0.2); border-radius:50%; width:20px; height:20px; display:flex; align-items:center; justify-content:center; font-size:0.75rem; flex-shrink:0;">✓</span>
+                    <span style="background:rgba(255,255,255,0.2); border-radius:50%; width:20px; height:20px; display:inline-flex; align-items:center; justify-content:center; font-size:0.75rem; flex-shrink:0;">&#10003;</span>
                     Priority support
                   </li>
                 </ul>
                 <a href="#"
                    onclick="Paddle.Checkout.open({{ items: [{{ priceId: '{product_id}', quantity: 1 }}], customer: {{ email: '{user_email}' }} }}); return false;"
-                   style="display:block; background:white; color:#1e40af; font-weight:700; padding:16px; border-radius:10px; text-decoration:none; font-size:1rem; text-align:center; transition:opacity 0.2s;">
-                  Upgrade to Pro →
+                   style="display:block; background:white; color:#1e40af; font-weight:700; padding:16px; border-radius:10px; text-decoration:none; font-size:1rem; text-align:center; cursor:pointer;">
+                  Upgrade to Pro &#8594;
                 </a>
                 <div style="text-align:center; margin-top:12px; color:rgba(255,255,255,0.6); font-size:0.8rem;">
-                  Cancel anytime · Secure payment by Paddle
+                  Cancel anytime &middot; Secure payment by Paddle
                 </div>
               </div>
             </div>
-            """, unsafe_allow_html=True)
+            """, height=560)
 
 
 if __name__ == "__main__":
