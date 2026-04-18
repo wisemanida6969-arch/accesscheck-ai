@@ -1224,7 +1224,6 @@ def main():
             st.components.v1.html(f"""
             <script src="https://cdn.paddle.com/paddle/v2/paddle.js"></script>
             <script>
-              Paddle.Environment.set('production');
               Paddle.Initialize({{ token: '{vendor_id}' }});
             </script>
             <div style="font-family:'Inter',sans-serif; background:linear-gradient(135deg,#1e40af 0%,#3b82f6 100%); border-radius:16px; padding:32px; position:relative; overflow:hidden;">
