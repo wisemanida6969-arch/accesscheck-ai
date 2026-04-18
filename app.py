@@ -376,7 +376,7 @@ def analyze_accessibility(url: str, html_snippet: str) -> dict:
         raise ValueError("OpenAI API key not configured")
 
     client = OpenAI(api_key=OPENAI_API_KEY)
-    prompt = ANALYSIS_PROMPT.format(url=url, html=html_snippet)
+    prompt = ANALYSIS_PROMPT.replace("{url}", url).replace("{html}", html_snippet)
 
     response = client.chat.completions.create(
         model="gpt-4o",
