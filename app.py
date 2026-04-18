@@ -340,6 +340,8 @@ ANALYSIS_PROMPT = """You are a professional web accessibility auditor specializi
 
 Analyze the following webpage HTML/text content and provide a comprehensive accessibility report.
 
+IMPORTANT: Respond entirely in English. All fields (summary, description, fix, title, location, quick_wins, positives) must be in English, regardless of the source language of the webpage.
+
 For each issue found, classify it as:
 - DANGER: Critical violations that make content inaccessible (WCAG Level A failures)
 - WARNING: Important issues affecting usability (WCAG Level AA failures)
@@ -441,10 +443,26 @@ class AccessibilityPDF(FPDF):
 
 
 def _pdf_safe(text: str) -> str:
-    """Convert text to latin-1 safe string for FPDF default fonts."""
+    """Convert text to latin-1 safe string for FPDF default fonts.
+    Also inserts zero-width-safe break points in long unbroken runs
+    so multi_cell can wrap them."""
     if text is None:
         return ""
-    return str(text).encode("latin-1", "replace").decode("latin-1")
+    safe = str(text).encode("latin-1", "replace").decode("latin-1")
+    # Insert space every 80 chars in unbroken runs to allow wrapping
+    out = []
+    run = 0
+    for ch in safe:
+        if ch.isspace():
+            run = 0
+            out.append(ch)
+        else:
+            if run >= 80:
+                out.append(" ")
+                run = 0
+            out.append(ch)
+            run += 1
+    return "".join(out)
 
 
 def generate_pdf(result: dict, user_email: str) -> bytes:
