@@ -892,7 +892,8 @@ def main():
                 st.divider()
 
     with tab_upgrade:
-        if is_pro:
+        is_admin = user_email.lower() == ADMIN_EMAIL.lower()
+        if is_pro and not is_admin:
             st.markdown("""
             <div style="background:linear-gradient(135deg,#059669,#10b981); border-radius:12px;
                         padding:24px; color:white; text-align:center;">
@@ -900,6 +901,8 @@ def main():
               <p>You have unlimited scans, PDF reports, and full WCAG 2.1 analysis.</p>
             </div>""", unsafe_allow_html=True)
         else:
+            if is_admin:
+                st.info("🔧 Admin mode — Paddle checkout visible for testing")
             st.markdown("### ⭐ Upgrade to AccessCheck AI Pro")
             render_paddle_checkout(user_email)
 
