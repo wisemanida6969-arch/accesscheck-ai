@@ -893,46 +893,118 @@ def main():
 
     with tab_upgrade:
         is_admin = user_email.lower() == ADMIN_EMAIL.lower()
+
+        if is_admin:
+            st.info("🔧 Admin mode — Paddle checkout visible for testing")
+
         if is_pro and not is_admin:
             st.markdown("""
             <div style="background:linear-gradient(135deg,#059669,#10b981); border-radius:12px;
-                        padding:24px; color:white; text-align:center;">
-              <h2>🎉 You're on Pro!</h2>
-              <p>You have unlimited scans, PDF reports, and full WCAG 2.1 analysis.</p>
+                        padding:24px; color:white; text-align:center; margin-bottom:32px;">
+              <h2 style="margin:0 0 8px;">🎉 You're on Pro!</h2>
+              <p style="margin:0; opacity:0.9;">You have unlimited scans, PDF reports, and full WCAG 2.1 analysis.</p>
             </div>""", unsafe_allow_html=True)
-        else:
-            if is_admin:
-                st.info("🔧 Admin mode — Paddle checkout visible for testing")
-            st.markdown("### ⭐ Upgrade to AccessCheck AI Pro")
-            render_paddle_checkout(user_email)
 
-            st.markdown("---")
-            st.markdown("#### Free vs Pro")
-            col1, col2 = st.columns(2)
-            with col1:
-                st.markdown("""
-                <div class="card">
-                  <h4 style="color:#6b7280;">Free</h4>
-                  <ul style="color:#374151; font-size:0.9rem;">
-                    <li>3 scans total</li>
-                    <li>WCAG 2.1 analysis</li>
-                    <li>PDF download</li>
-                    <li>Fix suggestions</li>
-                  </ul>
-                </div>""", unsafe_allow_html=True)
-            with col2:
-                st.markdown("""
-                <div class="card" style="border: 2px solid #3b82f6;">
-                  <h4 style="color:#1e40af;">Pro — $29/month</h4>
-                  <ul style="color:#374151; font-size:0.9rem;">
-                    <li>✅ <strong>Unlimited scans</strong></li>
-                    <li>✅ Full WCAG 2.1 / ADA analysis</li>
-                    <li>✅ Detailed PDF reports</li>
-                    <li>✅ AI fix suggestions</li>
-                    <li>✅ Scan history (last 10)</li>
-                    <li>✅ Priority support</li>
-                  </ul>
-                </div>""", unsafe_allow_html=True)
+        st.markdown("""
+        <div style="text-align:center; margin-bottom:32px;">
+          <h2 style="color:#111827; font-size:1.8rem; margin-bottom:8px;">Simple, Transparent Pricing</h2>
+          <p style="color:#6b7280; font-size:1rem;">Start free. Upgrade when you need more.</p>
+        </div>
+        """, unsafe_allow_html=True)
+
+        vendor_id  = PADDLE_VENDOR_ID or "YOUR_PADDLE_VENDOR_ID"
+        product_id = PADDLE_PRODUCT_ID
+
+        col1, col2 = st.columns(2, gap="large")
+
+        with col1:
+            st.markdown("""
+            <div style="background:white; border:1px solid #e5e7eb; border-radius:16px; padding:32px; height:100%;">
+              <div style="margin-bottom:20px;">
+                <div style="font-size:0.85rem; font-weight:600; color:#6b7280; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:8px;">Free</div>
+                <div style="font-size:2.4rem; font-weight:700; color:#111827;">$0<span style="font-size:1rem; font-weight:400; color:#6b7280;">/month</span></div>
+                <div style="color:#6b7280; font-size:0.9rem; margin-top:4px;">Get started with no commitment</div>
+              </div>
+              <hr style="border:none; border-top:1px solid #f3f4f6; margin:20px 0;">
+              <ul style="list-style:none; padding:0; margin:0 0 28px; display:flex; flex-direction:column; gap:12px;">
+                <li style="display:flex; align-items:center; gap:10px; font-size:0.95rem; color:#374151;">
+                  <span style="color:#22c55e; font-size:1.1rem;">✓</span> 3 website scans total
+                </li>
+                <li style="display:flex; align-items:center; gap:10px; font-size:0.95rem; color:#374151;">
+                  <span style="color:#22c55e; font-size:1.1rem;">✓</span> WCAG 2.1 accessibility analysis
+                </li>
+                <li style="display:flex; align-items:center; gap:10px; font-size:0.95rem; color:#374151;">
+                  <span style="color:#22c55e; font-size:1.1rem;">✓</span> PDF report download
+                </li>
+                <li style="display:flex; align-items:center; gap:10px; font-size:0.95rem; color:#374151;">
+                  <span style="color:#22c55e; font-size:1.1rem;">✓</span> AI fix suggestions
+                </li>
+                <li style="display:flex; align-items:center; gap:10px; font-size:0.95rem; color:#9ca3af;">
+                  <span style="color:#d1d5db; font-size:1.1rem;">✗</span> Scan history
+                </li>
+                <li style="display:flex; align-items:center; gap:10px; font-size:0.95rem; color:#9ca3af;">
+                  <span style="color:#d1d5db; font-size:1.1rem;">✗</span> Priority support
+                </li>
+              </ul>
+              <div style="background:#f9fafb; border:1px solid #e5e7eb; border-radius:8px; padding:12px; text-align:center; color:#6b7280; font-size:0.9rem; font-weight:500;">
+                Current Plan
+              </div>
+            </div>
+            """, unsafe_allow_html=True)
+
+        with col2:
+            st.markdown(f"""
+            <script src="https://cdn.paddle.com/paddle/v2/paddle.js"></script>
+            <script>
+              Paddle.Environment.set('production');
+              Paddle.Initialize({{ token: '{vendor_id}' }});
+            </script>
+            <div style="background:linear-gradient(135deg,#1e40af 0%,#3b82f6 100%); border-radius:16px; padding:32px; position:relative; overflow:hidden;">
+              <div style="position:absolute; top:-20px; right:-20px; width:120px; height:120px; background:rgba(255,255,255,0.06); border-radius:50%;"></div>
+              <div style="position:absolute; bottom:-30px; left:-10px; width:80px; height:80px; background:rgba(255,255,255,0.06); border-radius:50%;"></div>
+              <div style="position:relative; z-index:1;">
+                <div style="display:inline-block; background:rgba(255,255,255,0.2); color:white; font-size:0.75rem; font-weight:600; padding:4px 12px; border-radius:20px; margin-bottom:16px; letter-spacing:0.05em;">MOST POPULAR</div>
+                <div style="font-size:0.85rem; font-weight:600; color:rgba(255,255,255,0.7); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:8px;">Pro</div>
+                <div style="font-size:2.4rem; font-weight:700; color:white;">$29<span style="font-size:1rem; font-weight:400; opacity:0.8;">/month</span></div>
+                <div style="color:rgba(255,255,255,0.75); font-size:0.9rem; margin-top:4px; margin-bottom:20px;">Everything you need for compliance</div>
+                <hr style="border:none; border-top:1px solid rgba(255,255,255,0.2); margin:20px 0;">
+                <ul style="list-style:none; padding:0; margin:0 0 28px; display:flex; flex-direction:column; gap:12px;">
+                  <li style="display:flex; align-items:center; gap:10px; font-size:0.95rem; color:white;">
+                    <span style="background:rgba(255,255,255,0.2); border-radius:50%; width:20px; height:20px; display:flex; align-items:center; justify-content:center; font-size:0.75rem; flex-shrink:0;">✓</span>
+                    <strong>Unlimited</strong>&nbsp;website scans
+                  </li>
+                  <li style="display:flex; align-items:center; gap:10px; font-size:0.95rem; color:white;">
+                    <span style="background:rgba(255,255,255,0.2); border-radius:50%; width:20px; height:20px; display:flex; align-items:center; justify-content:center; font-size:0.75rem; flex-shrink:0;">✓</span>
+                    Full WCAG 2.1 / ADA analysis
+                  </li>
+                  <li style="display:flex; align-items:center; gap:10px; font-size:0.95rem; color:white;">
+                    <span style="background:rgba(255,255,255,0.2); border-radius:50%; width:20px; height:20px; display:flex; align-items:center; justify-content:center; font-size:0.75rem; flex-shrink:0;">✓</span>
+                    Detailed PDF reports
+                  </li>
+                  <li style="display:flex; align-items:center; gap:10px; font-size:0.95rem; color:white;">
+                    <span style="background:rgba(255,255,255,0.2); border-radius:50%; width:20px; height:20px; display:flex; align-items:center; justify-content:center; font-size:0.75rem; flex-shrink:0;">✓</span>
+                    AI-powered fix suggestions
+                  </li>
+                  <li style="display:flex; align-items:center; gap:10px; font-size:0.95rem; color:white;">
+                    <span style="background:rgba(255,255,255,0.2); border-radius:50%; width:20px; height:20px; display:flex; align-items:center; justify-content:center; font-size:0.75rem; flex-shrink:0;">✓</span>
+                    Scan history (last 10 reports)
+                  </li>
+                  <li style="display:flex; align-items:center; gap:10px; font-size:0.95rem; color:white;">
+                    <span style="background:rgba(255,255,255,0.2); border-radius:50%; width:20px; height:20px; display:flex; align-items:center; justify-content:center; font-size:0.75rem; flex-shrink:0;">✓</span>
+                    Priority support
+                  </li>
+                </ul>
+                <a href="#"
+                   onclick="Paddle.Checkout.open({{ items: [{{ priceId: '{product_id}', quantity: 1 }}], customer: {{ email: '{user_email}' }} }}); return false;"
+                   style="display:block; background:white; color:#1e40af; font-weight:700; padding:16px; border-radius:10px; text-decoration:none; font-size:1rem; text-align:center; transition:opacity 0.2s;">
+                  Upgrade to Pro →
+                </a>
+                <div style="text-align:center; margin-top:12px; color:rgba(255,255,255,0.6); font-size:0.8rem;">
+                  Cancel anytime · Secure payment by Paddle
+                </div>
+              </div>
+            </div>
+            """, unsafe_allow_html=True)
 
 
 if __name__ == "__main__":
