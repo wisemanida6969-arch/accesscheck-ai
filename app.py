@@ -432,8 +432,9 @@ class AccessibilityPDF(FPDF):
         self.rect(0, 0, 210, 20, "F")
         self.set_text_color(255, 255, 255)
         self.set_font("Helvetica", "B", 14)
-        self.cell(0, 20, "AccessCheck AI - Accessibility Report", align="C")
-        self.ln(5)
+        self.set_xy(0, 6)
+        self.cell(0, 10, "AccessCheck AI - Accessibility Report", align="C")
+        self.set_y(28)
 
     def footer(self):
         self.set_y(-15)
@@ -481,6 +482,7 @@ def _safe_multi_cell(pdf, w, h, text):
 
 def generate_pdf(result: dict, user_email: str) -> bytes:
     pdf = AccessibilityPDF()
+    pdf.set_top_margin(28)
     pdf.set_auto_page_break(auto=True, margin=20)
     pdf.add_page()
     pdf.set_text_color(30, 30, 30)
@@ -488,7 +490,6 @@ def generate_pdf(result: dict, user_email: str) -> bytes:
     # Title block
     pdf.set_font("Helvetica", "B", 18)
     pdf.set_text_color(30, 64, 175)
-    pdf.ln(8)
     pdf.cell(0, 10, "Website Accessibility Audit Report", ln=True)
 
     pdf.set_font("Helvetica", "", 10)
