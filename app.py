@@ -682,8 +682,213 @@ def render_positives_and_wins(result: dict):
 # Main App
 # ══════════════════════════════════════
 
+LEGAL_PAGES = {
+    "terms": {
+        "title": "Terms of Service",
+        "content": """
+**Effective Date:** April 18, 2026
+
+## 1. Acceptance of Terms
+By accessing or using AccessCheck AI ("Service"), you agree to be bound by these Terms of Service. If you do not agree, please do not use the Service.
+
+## 2. Description of Service
+AccessCheck AI provides AI-powered website accessibility analysis based on WCAG 2.1 and ADA guidelines. Results are advisory in nature and do not constitute legal compliance certification.
+
+## 3. User Accounts
+- You must sign in with a valid Google account.
+- You are responsible for maintaining the confidentiality of your account.
+- You must provide accurate information when using the Service.
+
+## 4. Subscription and Billing
+- Free plan: 3 website scans total.
+- Pro plan: $29/month, billed monthly via Paddle.
+- Subscriptions auto-renew unless cancelled before the renewal date.
+- All prices are in USD and exclude applicable taxes.
+
+## 5. Refund Policy
+We offer a 7-day refund policy for Pro subscriptions. To request a refund, contact admin@trytimeback.com within 7 days of purchase.
+
+## 6. Prohibited Use
+You may not use the Service to:
+- Scan websites you do not own or have permission to analyze.
+- Attempt to reverse-engineer or misuse the AI analysis system.
+- Violate any applicable laws or regulations.
+
+## 7. Disclaimer of Warranties
+The Service is provided "as is" without warranties of any kind. AccessCheck AI does not guarantee that analysis results are complete, accurate, or legally sufficient for ADA/WCAG compliance.
+
+## 8. Limitation of Liability
+AccessCheck AI shall not be liable for any indirect, incidental, or consequential damages arising from use of the Service.
+
+## 9. Changes to Terms
+We reserve the right to modify these Terms at any time. Continued use of the Service constitutes acceptance of updated Terms.
+
+## 10. Contact
+For questions about these Terms, contact us at **admin@trytimeback.com**.
+""",
+    },
+    "privacy": {
+        "title": "Privacy Policy",
+        "content": """
+**Effective Date:** April 18, 2026
+
+## 1. Information We Collect
+- **Account information:** Name and email address from Google OAuth login.
+- **Usage data:** Website URLs you submit for analysis, scan results, and timestamps.
+- **Payment data:** Processed by Paddle. We do not store credit card information.
+
+## 2. How We Use Your Information
+- To provide and improve the accessibility analysis Service.
+- To manage your subscription and billing.
+- To send service-related communications.
+- We do not sell your personal data to third parties.
+
+## 3. Data Storage
+- Account and scan data is stored securely in Supabase.
+- Scan results are retained for up to 90 days.
+
+## 4. Third-Party Services
+- **Google OAuth** — for authentication.
+- **OpenAI** — for AI-powered analysis (URLs submitted are processed by OpenAI).
+- **Paddle** — for payment processing.
+- **Supabase** — for database storage.
+
+## 5. Cookies
+We use session cookies for authentication. No tracking or advertising cookies are used.
+
+## 6. Your Rights
+You have the right to:
+- Access the personal data we hold about you.
+- Request deletion of your account and data.
+- Opt out of non-essential communications.
+
+To exercise these rights, contact **admin@trytimeback.com**.
+
+## 7. Data Security
+We implement industry-standard security measures to protect your data.
+
+## 8. Children's Privacy
+The Service is not intended for users under 13 years of age.
+
+## 9. Contact
+For privacy inquiries: **admin@trytimeback.com**
+""",
+    },
+    "cookies": {
+        "title": "Cookie Policy",
+        "content": """
+**Effective Date:** April 18, 2026
+
+## What Are Cookies?
+Cookies are small text files stored on your device when you visit a website.
+
+## Cookies We Use
+
+| Cookie | Purpose | Duration |
+|--------|---------|----------|
+| Session cookie | Keeps you logged in | Session |
+| Streamlit state | Maintains app state | Session |
+
+## What We Don't Use
+- We do **not** use advertising cookies.
+- We do **not** use tracking or analytics cookies.
+- We do **not** share cookie data with third parties.
+
+## Managing Cookies
+You can control cookies through your browser settings. Disabling session cookies will prevent you from logging in.
+
+## Contact
+For questions about our cookie use: **admin@trytimeback.com**
+""",
+    },
+    "refund": {
+        "title": "Refund Policy",
+        "content": """
+**Effective Date:** April 18, 2026
+
+## 7-Day Money-Back Guarantee
+We offer a full refund within **7 days** of your initial Pro subscription purchase, no questions asked.
+
+## Eligibility
+- Refund requests must be submitted within 7 days of purchase.
+- Only first-time Pro subscribers are eligible for the money-back guarantee.
+- Subsequent billing cycles are non-refundable.
+
+## How to Request a Refund
+Email **admin@trytimeback.com** with:
+- Your account email address
+- Date of purchase
+- Reason for refund (optional)
+
+We will process your refund within 5-7 business days.
+
+## Cancellation
+You may cancel your Pro subscription at any time. Cancellation stops future billing but does not automatically trigger a refund. Cancelled accounts retain Pro access until the end of the current billing period.
+
+## Contact
+For refund requests: **admin@trytimeback.com**
+""",
+    },
+    "accessibility": {
+        "title": "Accessibility Statement",
+        "content": """
+**Effective Date:** April 18, 2026
+
+## Our Commitment
+AccessCheck AI is committed to ensuring digital accessibility for people with disabilities. We continually improve the user experience for everyone.
+
+## Standards
+We aim to conform to the **Web Content Accessibility Guidelines (WCAG) 2.1 Level AA**.
+
+## Current Status
+We are actively working to achieve and maintain WCAG 2.1 AA conformance. Known areas of improvement include:
+- Enhanced keyboard navigation in analysis results
+- Improved color contrast in data visualizations
+
+## Technical Specifications
+This website relies on the following technologies for conformance:
+- HTML / CSS
+- Python (Streamlit)
+- WAI-ARIA
+
+## Feedback
+We welcome feedback on the accessibility of AccessCheck AI. If you experience barriers:
+
+**Email:** admin@trytimeback.com
+**Response time:** Within 2 business days
+
+## Enforcement
+If you are not satisfied with our response, you may contact the relevant disability authority in your jurisdiction.
+""",
+    },
+}
+
+
+def render_legal_page(page_key: str):
+    page = LEGAL_PAGES.get(page_key)
+    if not page:
+        st.error("Page not found.")
+        return
+
+    if st.button("← Back to AccessCheck AI"):
+        st.query_params.clear()
+        st.rerun()
+
+    st.markdown(f"# {page['title']}")
+    st.markdown("---")
+    st.markdown(page["content"])
+    st.markdown("---")
+    st.markdown("**Questions?** Contact us at [admin@trytimeback.com](mailto:admin@trytimeback.com)")
+
+
 def main():
     handle_oauth_callback()
+
+    # ─── Legal page routing ───
+    legal_param = st.query_params.get("legal")
+    if legal_param and legal_param in LEGAL_PAGES:
+        render_legal_page(legal_param)
+        return
 
     render_hero()
 
@@ -764,12 +969,12 @@ def main():
 
             <div style="min-width:160px;">
               <div style="font-weight:600; color:#374151; margin-bottom:12px; font-size:0.9rem;">Legal</div>
-              <div style="display:flex; flex-direction:column; gap:8px; font-size:0.88rem; color:#6b7280;">
-                <span>Terms of Service</span>
-                <span>Privacy Policy</span>
-                <span>Cookie Policy</span>
-                <span>Refund Policy</span>
-                <span>Accessibility Statement</span>
+              <div style="display:flex; flex-direction:column; gap:8px; font-size:0.88rem;">
+                <a href="?legal=terms" style="color:#6b7280; text-decoration:none;">Terms of Service</a>
+                <a href="?legal=privacy" style="color:#6b7280; text-decoration:none;">Privacy Policy</a>
+                <a href="?legal=cookies" style="color:#6b7280; text-decoration:none;">Cookie Policy</a>
+                <a href="?legal=refund" style="color:#6b7280; text-decoration:none;">Refund Policy</a>
+                <a href="?legal=accessibility" style="color:#6b7280; text-decoration:none;">Accessibility Statement</a>
               </div>
             </div>
 
@@ -790,13 +995,13 @@ def main():
               &copy; 2026 AccessCheck AI &middot; All rights reserved &middot; Powered by Trytimeback
             </div>
             <div style="color:#9ca3af; font-size:0.82rem; display:flex; gap:12px; flex-wrap:wrap;">
-              <span>Terms of Service</span>
+              <a href="?legal=terms" style="color:#9ca3af; text-decoration:none;">Terms of Service</a>
               <span>&middot;</span>
-              <span>Privacy Policy</span>
+              <a href="?legal=privacy" style="color:#9ca3af; text-decoration:none;">Privacy Policy</a>
               <span>&middot;</span>
-              <span>Cookie Policy</span>
+              <a href="?legal=cookies" style="color:#9ca3af; text-decoration:none;">Cookie Policy</a>
               <span>&middot;</span>
-              <span>Refund Policy</span>
+              <a href="?legal=refund" style="color:#9ca3af; text-decoration:none;">Refund Policy</a>
             </div>
           </div>
         </div>
