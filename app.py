@@ -356,12 +356,20 @@ Return a JSON object with this exact structure:
       "title": "<short issue title>",
       "description": "<what the issue is>",
       "location": "<where in the page, e.g. 'Navigation menu', 'Hero image'>",
-      "fix": "<specific, actionable fix instruction with code example if relevant>"
+      "fix": "<specific, actionable fix instruction>",
+      "code_before": "<the problematic HTML snippet found on the page, 1-5 lines max, or empty string if not applicable>",
+      "code_after": "<the corrected HTML snippet with the fix applied, 1-5 lines max, or empty string if not applicable>"
     }
   ],
   "quick_wins": ["<top 3 easiest improvements>"],
   "positives": ["<list of good accessibility practices found>"]
 }
+
+For code_before and code_after:
+- Provide ACTUAL HTML snippets from the page (copy verbatim for code_before)
+- Keep snippets short (1-5 lines, under 200 chars each)
+- Escape quotes properly for valid JSON
+- If the issue is not code-fixable (e.g. missing language declaration on whole page), still provide relevant before/after tags
 
 Webpage URL: {url}
 
@@ -654,7 +662,7 @@ def render_issues(result: dict):
         title, card_cls, badge_cls = severity_labels[sev]
         st.markdown(f"### {title} ({len(filtered)})")
 
-        for issue in filtered:
+        for idx, issue in enumerate(filtered):
             st.markdown(f"""
             <div class="{card_cls}">
               <div style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">
@@ -673,6 +681,18 @@ def render_issues(result: dict):
               </div>
             </div>
             """, unsafe_allow_html=True)
+
+            code_before = issue.get("code_before", "").strip()
+            code_after  = issue.get("code_after", "").strip()
+            if code_before or code_after:
+                with st.expander("👁️ View Code Before / After", expanded=False):
+                    col_b, col_a = st.columns(2)
+                    with col_b:
+                        st.markdown("**❌ Before (problem)**")
+                        st.code(code_before or "(not available)", language="html")
+                    with col_a:
+                        st.markdown("**✅ After (fixed)**")
+                        st.code(code_after or "(not available)", language="html")
 
 
 def render_positives_and_wins(result: dict):
