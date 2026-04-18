@@ -323,7 +323,7 @@ def fetch_page_content(url: str) -> tuple[str, str]:
         resp.raise_for_status()
     except requests.HTTPError as e:
         if e.response.status_code in (403, 429):
-            raise ValueError(f"This site blocks automated access (HTTP {e.response.status_code}). Try a different URL — e.g. https://example.com or https://www.w3.org/WAI/demos/bad/before/home.html")
+            raise ValueError(f"This site blocks automated access (HTTP {e.response.status_code}). Try a different URL such as https://example.com or https://trytimeback.com")
         raise
     soup = BeautifulSoup(resp.text, "html.parser")
 
