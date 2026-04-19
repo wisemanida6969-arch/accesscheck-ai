@@ -1,6 +1,7 @@
 import streamlit as st
 import os
 import json
+import sqlite3
 import requests
 import re
 from datetime import datetime
@@ -11,6 +12,67 @@ from supabase import create_client, Client
 from fpdf import FPDF
 import io
 import base64
+
+# ─── SQLite 폴백 DB (Supabase 미설정 시 사용) ───
+_SQLITE_DB = "accesscheck_users.db"
+
+def _sqlite_init():
+    conn = sqlite3.connect(_SQLITE_DB)
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS scan_history (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_email TEXT,
+            url TEXT,
+            score INTEGER,
+            total_issues INTEGER,
+            result_json TEXT,
+            created_at TEXT DEFAULT (datetime('now'))
+        )
+    """)
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS subscriptions (
+            user_email TEXT PRIMARY KEY,
+            plan TEXT DEFAULT 'free',
+            created_at TEXT DEFAULT (datetime('now'))
+        )
+    """)
+    conn.commit()
+    conn.close()
+
+_sqlite_init()
+
+def _sqlite_save_scan(user_email, url, result):
+    conn = sqlite3.connect(_SQLITE_DB)
+    conn.execute("""
+        INSERT INTO scan_history (user_email, url, score, total_issues, result_json)
+        VALUES (?, ?, ?, ?, ?)
+    """, (user_email, url, result.get("score", 0), result.get("total_issues", 0), json.dumps(result)))
+    conn.commit()
+    conn.close()
+
+def _sqlite_load_scans(user_email):
+    conn = sqlite3.connect(_SQLITE_DB)
+    conn.row_factory = sqlite3.Row
+    rows = conn.execute("""
+        SELECT * FROM scan_history WHERE user_email=? ORDER BY created_at DESC LIMIT 10
+    """, (user_email,)).fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
+
+def _sqlite_is_pro(user_email):
+    conn = sqlite3.connect(_SQLITE_DB)
+    row = conn.execute("SELECT plan FROM subscriptions WHERE user_email=?", (user_email,)).fetchone()
+    conn.close()
+    return row and row[0] == "pro"
+
+def _sqlite_set_pro(user_email):
+    conn = sqlite3.connect(_SQLITE_DB)
+    conn.execute("""
+        INSERT INTO subscriptions (user_email, plan) VALUES (?, 'pro')
+        ON CONFLICT(user_email) DO UPDATE SET plan='pro'
+    """, (user_email,))
+    conn.commit()
+    conn.close()
 
 APP_VERSION = "2026-04-18-v1"
 
@@ -254,54 +316,55 @@ def logout():
 # ══════════════════════════════════════
 
 def save_analysis(user_email: str, url: str, result: dict):
-    if not supabase:
-        return
-    try:
-        supabase.table("accessibility_reports").insert({
-            "user_email":   user_email,
-            "url":          url,
-            "score":        result.get("score", 0),
-            "total_issues": result.get("total_issues", 0),
-            "result_json":  json.dumps(result),
-            "created_at":   datetime.utcnow().isoformat(),
-        }).execute()
-    except Exception:
-        pass
+    if supabase:
+        try:
+            supabase.table("accessibility_reports").insert({
+                "user_email":   user_email,
+                "url":          url,
+                "score":        result.get("score", 0),
+                "total_issues": result.get("total_issues", 0),
+                "result_json":  json.dumps(result),
+                "created_at":   datetime.utcnow().isoformat(),
+            }).execute()
+            return
+        except Exception:
+            pass
+    _sqlite_save_scan(user_email, url, result)
 
 
 def load_reports(user_email: str) -> list:
-    if not supabase:
-        return []
-    try:
-        resp = (
-            supabase.table("accessibility_reports")
-            .select("*")
-            .eq("user_email", user_email)
-            .order("created_at", desc=True)
-            .limit(10)
-            .execute()
-        )
-        return resp.data or []
-    except Exception:
-        return []
+    if supabase:
+        try:
+            resp = (
+                supabase.table("accessibility_reports")
+                .select("*")
+                .eq("user_email", user_email)
+                .order("created_at", desc=True)
+                .limit(10)
+                .execute()
+            )
+            return resp.data or []
+        except Exception:
+            pass
+    return _sqlite_load_scans(user_email)
 
 
 def check_subscription(user_email: str) -> bool:
-    if not supabase:
-        return False
     if user_email.lower() == ADMIN_EMAIL.lower():
         return True
-    try:
-        resp = (
-            supabase.table("subscriptions")
-            .select("*")
-            .eq("user_email", user_email)
-            .eq("status", "active")
-            .execute()
-        )
-        return len(resp.data or []) > 0
-    except Exception:
-        return False
+    if supabase:
+        try:
+            resp = (
+                supabase.table("subscriptions")
+                .select("*")
+                .eq("user_email", user_email)
+                .eq("status", "active")
+                .execute()
+            )
+            return len(resp.data or []) > 0
+        except Exception:
+            pass
+    return _sqlite_is_pro(user_email)
 
 
 # ══════════════════════════════════════
