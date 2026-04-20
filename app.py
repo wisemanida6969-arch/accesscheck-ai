@@ -399,16 +399,16 @@ def fetch_page_content(url: str) -> tuple[str, str]:
     return text, html_snippet
 
 
-ANALYSIS_PROMPT = """You are a professional web accessibility auditor specializing in WCAG 2.1 and ADA compliance.
+ANALYSIS_PROMPT = """You are a professional web accessibility auditor specializing in WCAG 2.1/2.2 and ADA compliance.
 
-Analyze the following webpage HTML/text content and provide a comprehensive accessibility report.
+Analyze the following webpage HTML and produce an actionable audit with copy-paste-ready fixes.
 
-IMPORTANT: Respond entirely in English. All fields (summary, description, fix, title, location, quick_wins, positives) must be in English, regardless of the source language of the webpage.
+IMPORTANT: Respond entirely in English. All fields must be in English, regardless of the source language of the webpage.
 
-For each issue found, classify it as:
-- DANGER: Critical violations that make content inaccessible (WCAG Level A failures)
-- WARNING: Important issues affecting usability (WCAG Level AA failures)
-- ADVISORY: Best practice improvements (WCAG Level AAA / general improvements)
+Severity mapping:
+- DANGER: Critical violations making content inaccessible (WCAG Level A failures, high legal risk)
+- WARNING: Important usability issues (WCAG Level AA failures)
+- ADVISORY: Best-practice improvements (WCAG Level AAA / polish)
 
 Return a JSON object with this exact structure:
 {
@@ -418,23 +418,28 @@ Return a JSON object with this exact structure:
     {
       "severity": "DANGER" | "WARNING" | "ADVISORY",
       "wcag_criterion": "<e.g. 1.1.1 Non-text Content>",
-      "title": "<short issue title>",
-      "description": "<what the issue is>",
-      "location": "<where in the page, e.g. 'Navigation menu', 'Hero image'>",
-      "fix": "<specific, actionable fix instruction>",
-      "code_before": "<the problematic HTML snippet found on the page, 1-5 lines max, or empty string if not applicable>",
-      "code_after": "<the corrected HTML snippet with the fix applied, 1-5 lines max, or empty string if not applicable>"
+      "title": "<short violation name, e.g. 'Missing alt text on hero image'>",
+      "description": "<what the issue is, 1-2 sentences>",
+      "location": "<where in the page, e.g. 'Main navigation, 3rd link'>",
+      "code_before": "<ACTUAL HTML element from the scanned page, copied verbatim. Must be the exact string that appears in the source. 1-5 lines, under 300 chars>",
+      "code_after": "<Corrected HTML, copy-paste ready. Must be a drop-in replacement for code_before. Same structure, same attributes, only adding/fixing what is needed for compliance. 1-5 lines, under 300 chars>",
+      "why": "<one sentence, under 20 words, explaining the real-world user impact>",
+      "fix_time": "<realistic estimate: '1 minute', '2 minutes', '5 minutes', '15 minutes', '30 minutes'>"
     }
   ],
-  "quick_wins": ["<top 3 easiest improvements>"],
-  "positives": ["<list of good accessibility practices found>"]
+  "quick_wins": ["<top 3 easiest improvements, one line each>"],
+  "positives": ["<good accessibility practices already present on the page>"]
 }
 
-For code_before and code_after:
-- Provide ACTUAL HTML snippets from the page (copy verbatim for code_before)
-- Keep snippets short (1-5 lines, under 200 chars each)
-- Escape quotes properly for valid JSON
-- If the issue is not code-fixable (e.g. missing language declaration on whole page), still provide relevant before/after tags
+STRICT RULES for code_before and code_after:
+1. code_before MUST be copied VERBATIM from the HTML below. Do NOT invent, paraphrase, or write a generic placeholder like <img src="logo.png">. If you cannot find the exact element, skip the issue.
+2. code_after MUST be the FIXED version of the SAME element — structure and attributes preserved, only the accessibility problem corrected.
+3. Both snippets must be valid HTML that works as-is when pasted back into the page.
+4. Never use ellipsis (...) or comments like <!-- existing code --> to abbreviate. Write the full element.
+5. If the violation is page-level (missing <html lang>, no skip-link, etc.), code_before is the actual opening tag as found; code_after is that tag fixed.
+6. Escape quotes properly for valid JSON (\\").
+
+Apply these rules to ALL violation types: missing alt text, low contrast, missing form labels, missing focus indicators, small target size, inaccessible authentication, missing heading structure, empty links/buttons, etc.
 
 Webpage URL: {url}
 
@@ -615,10 +620,23 @@ def generate_pdf(result: dict, user_email: str) -> bytes:
             pdf.set_text_color(80, 80, 80)
             _safe_multi_cell(pdf, 0, 5, _pdf_safe(f"Location: {issue.get('location', 'N/A')}"))
             _safe_multi_cell(pdf, 0, 5, _pdf_safe(f"Issue: {issue.get('description', '')}"))
+            why_txt = issue.get("why", "")
+            if why_txt:
+                _safe_multi_cell(pdf, 0, 5, _pdf_safe(f"Why: {why_txt}"))
+            ftime = issue.get("fix_time", "")
+            if ftime:
+                _safe_multi_cell(pdf, 0, 5, _pdf_safe(f"Fix time: {ftime}"))
 
-            pdf.set_font("Helvetica", "I", 9)
-            pdf.set_text_color(30, 100, 50)
-            _safe_multi_cell(pdf, 0, 5, _pdf_safe(f"Fix: {issue.get('fix', '')}"))
+            code_b = issue.get("code_before", "").strip()
+            code_a = issue.get("code_after", "").strip()
+            if code_b:
+                pdf.set_font("Courier", "", 8)
+                pdf.set_text_color(153, 27, 27)
+                _safe_multi_cell(pdf, 0, 4, _pdf_safe(f"Before: {code_b}"))
+            if code_a:
+                pdf.set_font("Courier", "", 8)
+                pdf.set_text_color(6, 95, 70)
+                _safe_multi_cell(pdf, 0, 4, _pdf_safe(f"After:  {code_a}"))
             pdf.ln(3)
 
         pdf.ln(4)
@@ -759,9 +777,11 @@ def render_issues(result: dict):
         st.markdown(f"### {title} ({len(filtered)})")
 
         for idx, issue in enumerate(filtered):
+            why       = issue.get("why", "") or issue.get("description", "")
+            fix_time  = issue.get("fix_time", "").strip()
             st.markdown(f"""
             <div class="{card_cls}">
-              <div style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">
+              <div style="display:flex; align-items:center; gap:10px; margin-bottom:8px; flex-wrap:wrap;">
                 <span class="{badge_cls}">{sev}</span>
                 <strong style="font-size:0.95rem;">{issue.get('title','')}</strong>
                 <span style="margin-left:auto; font-size:0.8rem; color:#6b7280;">{issue.get('wcag_criterion','')}</span>
@@ -772,8 +792,9 @@ def render_issues(result: dict):
               <div style="font-size:0.9rem; color:#374151; margin-bottom:8px;">
                 {issue.get('description','')}
               </div>
-              <div style="font-size:0.88rem; background:rgba(255,255,255,0.7); border-radius:6px; padding:10px;">
-                🔧 <strong>Fix:</strong> {issue.get('fix','')}
+              <div style="display:flex; gap:14px; font-size:0.85rem; color:#4b5563; margin-top:6px;">
+                <div>💡 <strong>Why:</strong> {why}</div>
+                {f'<div style="margin-left:auto;">⏱ <strong>Fix time:</strong> {fix_time}</div>' if fix_time else ''}
               </div>
             </div>
             """, unsafe_allow_html=True)
@@ -781,13 +802,13 @@ def render_issues(result: dict):
             code_before = issue.get("code_before", "").strip()
             code_after  = issue.get("code_after", "").strip()
             if code_before or code_after:
-                with st.expander("👁️ View Code Before / After", expanded=False):
+                with st.expander("👁️ View Before / After Code (copy-paste ready)", expanded=False):
                     col_b, col_a = st.columns(2)
                     with col_b:
-                        st.markdown("**❌ Before (problem)**")
+                        st.markdown("**❌ Before (actual code from page)**")
                         st.code(code_before or "(not available)", language="html")
                     with col_a:
-                        st.markdown("**✅ After (fixed)**")
+                        st.markdown("**✅ After (drop-in replacement)**")
                         st.code(code_after or "(not available)", language="html")
 
 
