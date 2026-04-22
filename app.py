@@ -78,11 +78,23 @@ APP_VERSION = "2026-04-18-v1"
 
 # ─── Page Config ───
 st.set_page_config(
-    page_title="AccessCheck AI | WCAG Accessibility Analyzer",
-    page_icon="♿",
-    layout="wide",
-    initial_sidebar_state="collapsed",
+    page_title="AccessCheck AI - WCAG 2.2 Accessibility Scanner",
+    page_icon="✅",
+    layout="wide"
 )
+
+st.markdown("""
+    <head>
+        <meta name="description" content="AI-powered WCAG 2.2 scanner that generates copy-paste ready code fixes automatically. Free plan includes 3 scans/month. No credit card required.">
+        <meta property="og:title" content="AccessCheck AI - WCAG 2.2 Accessibility Scanner">
+        <meta property="og:description" content="AI-powered WCAG 2.2 scanner with auto-generated code fixes. Scan any website for WCAG 2.2 violations instantly.">
+        <meta property="og:url" content="https://access.trytimeback.com">
+        <meta property="og:type" content="website">
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="AccessCheck AI - WCAG 2.2 Accessibility Scanner">
+        <meta name="twitter:description" content="AI-powered WCAG 2.2 scanner with copy-paste ready code fixes.">
+    </head>
+""", unsafe_allow_html=True)
 
 # ─── Theme CSS ───
 st.markdown("""
