@@ -850,45 +850,75 @@ LEGAL_PAGES = {
     "terms": {
         "title": "Terms of Service",
         "content": """
+**This service is operated by Trytimeback.**
+
 **Effective Date:** April 18, 2026
+**Last Updated:** April 23, 2026
 
 ## 1. Acceptance of Terms
-By accessing or using AccessCheck AI ("Service"), you agree to be bound by these Terms of Service. If you do not agree, please do not use the Service.
+By accessing, signing into, or using AccessCheck AI (the "Service"), you ("User", "you") agree to be bound by these Terms of Service ("Terms"). If you do not agree with any part of these Terms, you must not access or use the Service. These Terms form a legally binding agreement between you and Trytimeback (the "Company", "we", "us").
 
 ## 2. Description of Service
-AccessCheck AI provides AI-powered website accessibility analysis based on WCAG 2.1 and ADA guidelines. Results are advisory in nature and do not constitute legal compliance certification.
+AccessCheck AI is an automated website accessibility auditing tool that analyzes publicly accessible webpages against the Web Content Accessibility Guidelines (WCAG 2.1 / 2.2) and the Americans with Disabilities Act (ADA). The Service generates reports containing severity-ranked issues, suggested fixes, and before/after code snippets.
 
-## 3. User Accounts
-- You must sign in with a valid Google account.
-- You are responsible for maintaining the confidentiality of your account.
-- You must provide accurate information when using the Service.
+Reports produced by the Service are advisory in nature. They do not constitute a legal compliance certification, a substitute for a manual accessibility audit, or a guarantee of regulatory conformance in any jurisdiction.
 
-## 4. Subscription and Billing
-- Free plan: 3 website scans total.
-- Pro plan: $29/month, billed monthly via Paddle.
-- Subscriptions auto-renew unless cancelled before the renewal date.
-- All prices are in USD and exclude applicable taxes.
+## 3. Eligibility and User Accounts
+- You must be at least 13 years of age to use the Service.
+- You must sign in using a valid Google account.
+- You are responsible for all activity occurring under your account.
+- You agree to provide accurate, current, and complete information.
+- You must not share account credentials or allow others to use your account.
+
+## 4. Subscription Plans and Billing
+- **Free plan:** Limited to 3 website scans per account, lifetime.
+- **Pro plan:** USD $29.00 per month, billed monthly via Paddle.com Inc. ("Paddle"), our authorized reseller and merchant of record.
+- Subscriptions renew automatically at the end of each billing cycle unless cancelled at least 24 hours before renewal.
+- All prices are in United States Dollars (USD) and exclude applicable sales tax, VAT, or similar taxes, which are calculated and collected by Paddle.
+- You authorize Paddle to charge the payment method on file for all recurring fees until you cancel.
 
 ## 5. Refund Policy
-We offer a 7-day refund policy for Pro subscriptions. To request a refund, contact admin@trytimeback.com within 7 days of purchase.
+A 14-day refund policy applies to Pro subscriptions, in accordance with Paddle's terms of service. See the full [Refund Policy](?legal=refund) for details and how to submit a refund request.
 
-## 6. Prohibited Use
-You may not use the Service to:
-- Scan websites you do not own or have permission to analyze.
-- Attempt to reverse-engineer or misuse the AI analysis system.
-- Violate any applicable laws or regulations.
+## 6. Acceptable Use
+You agree that you will NOT:
+- Submit URLs for websites you do not own, operate, or have explicit permission to audit.
+- Use the Service to scan, probe, or attempt to penetrate systems without authorization.
+- Reverse-engineer, decompile, scrape, or attempt to extract the underlying AI models, prompts, or infrastructure.
+- Use the Service in violation of any applicable local, state, national, or international law.
+- Abuse, harass, or threaten other users or Trytimeback staff.
+- Resell or redistribute Service output without written permission.
 
-## 7. Disclaimer of Warranties
-The Service is provided "as is" without warranties of any kind. AccessCheck AI does not guarantee that analysis results are complete, accurate, or legally sufficient for ADA/WCAG compliance.
+## 7. Intellectual Property
+- All software, branding, and original content comprising the Service are the property of Trytimeback.
+- AI-generated analysis reports produced for your account may be used by you for any lawful business purpose.
+- You grant Trytimeback a limited license to process submitted URLs and page content solely for the purpose of providing the Service.
 
-## 8. Limitation of Liability
-AccessCheck AI shall not be liable for any indirect, incidental, or consequential damages arising from use of the Service.
+## 8. Third-Party Services
+The Service integrates with third parties including Google (authentication), OpenAI (AI analysis), Paddle (payments), and Supabase (data storage). Use of the Service is also subject to their respective terms and privacy policies.
 
-## 9. Changes to Terms
-We reserve the right to modify these Terms at any time. Continued use of the Service constitutes acceptance of updated Terms.
+## 9. Disclaimer of Warranties
+The Service is provided "AS IS" and "AS AVAILABLE" without warranties of any kind, express or implied, including but not limited to merchantability, fitness for a particular purpose, non-infringement, accuracy, or uninterrupted availability. Trytimeback does not warrant that analysis results are complete, error-free, or legally sufficient for ADA, WCAG, EAA, Section 508, or any other regulatory compliance.
 
-## 10. Contact
-For questions about these Terms, contact us at **admin@trytimeback.com**.
+## 10. Limitation of Liability
+To the maximum extent permitted by law, Trytimeback, its officers, employees, affiliates, and licensors shall not be liable for any indirect, incidental, special, consequential, punitive, or exemplary damages, or for any loss of profits, revenue, data, goodwill, or business opportunities, arising from or related to your use of the Service. Our total aggregate liability for any claims relating to the Service shall not exceed the amount paid by you to Trytimeback in the twelve (12) months preceding the claim.
+
+## 11. Indemnification
+You agree to indemnify and hold harmless Trytimeback from any claims, damages, liabilities, and expenses (including reasonable attorneys' fees) arising from your misuse of the Service, violation of these Terms, or infringement of any third-party rights.
+
+## 12. Termination
+We may suspend or terminate your access to the Service at our sole discretion, with or without notice, for any violation of these Terms or for any conduct we believe to be harmful to Trytimeback, other users, or third parties. Upon termination, your right to use the Service ceases immediately; sections 7, 9, 10, 11, and 13 survive termination.
+
+## 13. Governing Law and Disputes
+These Terms are governed by the laws of the Republic of Korea, without regard to conflict-of-laws principles. Any dispute arising from the Service shall be resolved exclusively in the competent courts located in Changwon-si, Gyeongsangnam-do, Republic of Korea, unless another forum is required by mandatory consumer protection law.
+
+## 14. Changes to the Terms
+We reserve the right to update these Terms at any time. Material changes will be communicated by updating the "Last Updated" date above and, where appropriate, via email. Continued use of the Service after changes constitutes acceptance.
+
+## 15. Contact
+For questions, notices, or legal correspondence:
+- **Email:** admin@trytimeback.com
+- **Operator:** Trytimeback
 """,
     },
     "privacy": {
@@ -968,29 +998,36 @@ For questions about our cookie use: **admin@trytimeback.com**
     "refund": {
         "title": "Refund Policy",
         "content": """
-**Effective Date:** April 18, 2026
+**This service is operated by Trytimeback.**
 
-## 7-Day Money-Back Guarantee
-We offer a full refund within **7 days** of your initial Pro subscription purchase, no questions asked.
+**Effective Date:** April 23, 2026
 
-## Eligibility
-- Refund requests must be submitted within 7 days of purchase.
-- Only first-time Pro subscribers are eligible for the money-back guarantee.
-- Subsequent billing cycles are non-refundable.
+## Refund Policy
+
+We offer a 14-day refund policy in accordance with Paddle's terms of service.
+
+Customers may request a full refund within 14 days of purchase by contacting us at **admin@trytimeback.com**.
+
+Refund requests after 14 days will be reviewed on a case-by-case basis.
 
 ## How to Request a Refund
-Email **admin@trytimeback.com** with:
-- Your account email address
-- Date of purchase
-- Reason for refund (optional)
+Send an email to **admin@trytimeback.com** including:
+- The email address associated with your AccessCheck AI account
+- The date of purchase
+- The Paddle order/transaction ID (found in your purchase receipt)
+- A brief reason for the refund request (optional but appreciated)
 
-We will process your refund within 5-7 business days.
+Refunds are processed through Paddle and typically appear on your statement within 5–10 business days, depending on your payment provider.
 
-## Cancellation
-You may cancel your Pro subscription at any time. Cancellation stops future billing but does not automatically trigger a refund. Cancelled accounts retain Pro access until the end of the current billing period.
+## Cancellation vs. Refund
+Cancelling your Pro subscription stops future billing but does not automatically issue a refund for the current period. If you cancel, you retain Pro access until the end of your current billing cycle. If you would also like a refund for the current period, you must request one separately as described above.
+
+## Non-Refundable Items
+- Renewal charges beyond the first 14 days are non-refundable unless required by law or approved on a case-by-case basis.
+- Refunds cannot be issued for violations of our [Terms of Service](?legal=terms).
 
 ## Contact
-For refund requests: **admin@trytimeback.com**
+For all refund-related inquiries: **admin@trytimeback.com**
 """,
     },
     "accessibility": {
