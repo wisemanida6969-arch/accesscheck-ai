@@ -247,6 +247,87 @@ if SUPABASE_URL and SUPABASE_KEY and SUPABASE_URL != "YOUR_SUPABASE_URL":
 
 
 # ══════════════════════════════════════
+# Persistent Session (Mobile-safe)
+# ══════════════════════════════════════
+import hmac, hashlib, base64, time
+
+SESSION_SECRET = get_secret("SESSION_SECRET", GOOGLE_CLIENT_SECRET or "fallback-secret-change-me")
+SESSION_TTL    = 60 * 60 * 24 * 30  # 30 days
+
+def create_session_token(user_info: dict) -> str:
+    payload = {
+        "email":   user_info.get("email", ""),
+        "name":    user_info.get("name", ""),
+        "picture": user_info.get("picture", ""),
+        "exp":     int(time.time()) + SESSION_TTL,
+    }
+    payload_json = json.dumps(payload, separators=(",", ":"))
+    payload_b64  = base64.urlsafe_b64encode(payload_json.encode()).decode().rstrip("=")
+    sig          = hmac.new(SESSION_SECRET.encode(), payload_b64.encode(), hashlib.sha256).digest()
+    sig_b64      = base64.urlsafe_b64encode(sig).decode().rstrip("=")
+    return f"{payload_b64}.{sig_b64}"
+
+
+def verify_session_token(token: str):
+    try:
+        payload_b64, sig_b64 = token.split(".")
+        expected     = hmac.new(SESSION_SECRET.encode(), payload_b64.encode(), hashlib.sha256).digest()
+        expected_b64 = base64.urlsafe_b64encode(expected).decode().rstrip("=")
+        if not hmac.compare_digest(sig_b64, expected_b64):
+            return None
+        padding = "=" * (-len(payload_b64) % 4)
+        payload = json.loads(base64.urlsafe_b64decode(payload_b64 + padding))
+        if payload.get("exp", 0) < time.time():
+            return None
+        return payload
+    except Exception:
+        return None
+
+
+def inject_session_save(token: str):
+    """Save session token to localStorage so it survives mobile tab kills / cookie clears."""
+    st.components.v1.html(f"""
+        <script>
+          try {{
+            window.parent.localStorage.setItem('ac_session', {json.dumps(token)});
+          }} catch(e) {{
+            try {{ localStorage.setItem('ac_session', {json.dumps(token)}); }} catch(e2) {{}}
+          }}
+        </script>
+    """, height=0)
+
+
+def inject_session_restore():
+    """If user has a stored session token but Streamlit session is empty, redirect with token in URL."""
+    st.components.v1.html("""
+        <script>
+          (function() {
+            try {
+              const w = window.parent || window;
+              const token = w.localStorage.getItem('ac_session');
+              if (!token) return;
+              const url = new URL(w.location.href);
+              if (url.searchParams.get('auth')) return;
+              if (url.searchParams.get('code'))  return;  // OAuth flow in progress
+              url.searchParams.set('auth', token);
+              w.location.replace(url.toString());
+            } catch(e) {}
+          })();
+        </script>
+    """, height=0)
+
+
+def inject_session_clear():
+    st.components.v1.html("""
+        <script>
+          try { window.parent.localStorage.removeItem('ac_session'); } catch(e) {
+            try { localStorage.removeItem('ac_session'); } catch(e2) {}
+          }
+        </script>
+    """, height=0)
+
+
+# ══════════════════════════════════════
 # Google OAuth
 # ══════════════════════════════════════
 
@@ -298,17 +379,40 @@ def handle_oauth_callback():
         st.session_state.pop("login_error", None)
 
     params = st.query_params
-    code   = params.get("code")
+
+    # ── 1) Restore from persistent session token ──
+    auth_token = params.get("auth")
+    if auth_token and not st.session_state.get("logged_in"):
+        payload = verify_session_token(auth_token)
+        if payload:
+            st.session_state["logged_in"] = True
+            st.session_state["user_info"] = {
+                "name":    payload.get("name", ""),
+                "email":   payload.get("email", ""),
+                "picture": payload.get("picture", ""),
+            }
+            st.query_params.clear()
+            st.rerun()
+        else:
+            # Bad/expired token - clear it from storage
+            inject_session_clear()
+            st.query_params.clear()
+
+    # ── 2) Fresh OAuth code from Google ──
+    code = params.get("code")
     if code and not st.session_state.get("logged_in"):
         try:
             token_data = exchange_code_for_token(code)
             user_info  = get_user_info(token_data["access_token"])
-            st.session_state["logged_in"] = True
-            st.session_state["user_info"] = {
+            ui = {
                 "name":    user_info.get("name", ""),
                 "email":   user_info.get("email", ""),
                 "picture": user_info.get("picture", ""),
             }
+            st.session_state["logged_in"] = True
+            st.session_state["user_info"] = ui
+            # Persist to localStorage for mobile resilience
+            inject_session_save(create_session_token(ui))
             st.query_params.clear()
             st.rerun()
         except Exception as e:
@@ -318,6 +422,7 @@ def handle_oauth_callback():
 
 
 def logout():
+    inject_session_clear()
     for k in ["logged_in", "user_info", "analysis_result", "last_url"]:
         st.session_state.pop(k, None)
     st.rerun()
@@ -1107,6 +1212,9 @@ def main():
 
     # ─── Auth Check ───
     if not st.session_state.get("logged_in"):
+        # Try to restore session from localStorage (mobile-safe)
+        inject_session_restore()
+
         st.markdown("""
         <div class="card" style="max-width:520px; margin:0 auto; text-align:center;">
           <h2 style="color:#1e40af; margin-bottom:8px;">Get Started Free</h2>
