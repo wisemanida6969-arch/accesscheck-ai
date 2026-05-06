@@ -803,7 +803,7 @@ def render_paddle_checkout(user_email: str):
         <div style="font-size:1.1rem; font-weight:600; margin-bottom:16px;">AccessCheck AI Pro</div>
         <ul style="text-align:left; list-style:none; padding:0; margin:0 0 24px; font-size:0.95rem;">
           <li style="padding:4px 0;">✅ Unlimited website scans</li>
-          <li style="padding:4px 0;">✅ WCAG 2.1 / ADA compliance</li>
+          <li style="padding:4px 0;">✅ WCAG 2.2 / ADA compliance</li>
           <li style="padding:4px 0;">✅ PDF reports</li>
           <li style="padding:4px 0;">✅ AI-powered fix suggestions</li>
           <li style="padding:4px 0;">✅ Scan history</li>
@@ -828,7 +828,7 @@ def render_hero():
     st.markdown("""
     <div class="hero-banner">
       <h1>♿ AccessCheck AI</h1>
-      <p>Instant WCAG 2.1 & ADA Compliance Analysis — Powered by AI</p>
+      <p>Instant WCAG 2.2 & ADA Compliance Analysis — Powered by AI</p>
     </div>
     """, unsafe_allow_html=True)
 
@@ -1156,10 +1156,10 @@ For all refund-related inquiries: **admin@trytimeback.com**
 AccessCheck AI is committed to ensuring digital accessibility for people with disabilities. We continually improve the user experience for everyone.
 
 ## Standards
-We aim to conform to the **Web Content Accessibility Guidelines (WCAG) 2.1 Level AA**.
+We aim to conform to the **Web Content Accessibility Guidelines (WCAG) 2.2 Level AA**.
 
 ## Current Status
-We are actively working to achieve and maintain WCAG 2.1 AA conformance. Known areas of improvement include:
+We are actively working to achieve and maintain WCAG 2.2 AA conformance. Known areas of improvement include:
 - Enhanced keyboard navigation in analysis results
 - Improved color contrast in data visualizations
 
@@ -1273,7 +1273,7 @@ def main():
             <div style="min-width:200px;">
               <div style="font-weight:700; color:#1e40af; font-size:1.1rem; margin-bottom:12px;">&#9855; AccessCheck AI</div>
               <div style="color:#6b7280; font-size:0.88rem; line-height:1.7;">
-                AI-powered WCAG 2.1 &amp; ADA<br>accessibility analysis tool.<br>
+                AI-powered WCAG 2.2 &amp; ADA<br>accessibility analysis tool.<br>
                 Built for developers, designers,<br>and compliance teams.
               </div>
             </div>
@@ -1283,7 +1283,7 @@ def main():
               <div style="display:flex; flex-direction:column; gap:8px; font-size:0.88rem; color:#6b7280;">
                 <span>Features</span>
                 <span>Pricing</span>
-                <span>WCAG 2.1 Guide</span>
+                <span>WCAG 2.2 Guide</span>
                 <span>ADA Compliance</span>
               </div>
             </div>
@@ -1390,7 +1390,7 @@ def main():
                     st.error(f"Failed to fetch URL: {e}")
                     st.stop()
 
-            with st.spinner("🤖 AI is analyzing accessibility (WCAG 2.1)..."):
+            with st.spinner("🤖 AI is analyzing accessibility (WCAG 2.2)..."):
                 try:
                     result = analyze_accessibility(url_input, html_snippet)
                 except Exception as e:
@@ -1491,7 +1491,7 @@ def main():
             <div style="background:linear-gradient(135deg,#059669,#10b981); border-radius:12px;
                         padding:24px; color:white; text-align:center; margin-bottom:32px;">
               <h2 style="margin:0 0 8px;">🎉 You're on Pro!</h2>
-              <p style="margin:0; opacity:0.9;">You have unlimited scans, PDF reports, and full WCAG 2.1 analysis.</p>
+              <p style="margin:0; opacity:0.9;">You have unlimited scans, PDF reports, and full WCAG 2.2 analysis.</p>
             </div>""", unsafe_allow_html=True)
 
         st.markdown("""
@@ -1520,7 +1520,7 @@ def main():
                   <span style="color:#22c55e; font-size:1.1rem;">✓</span> 3 website scans total
                 </li>
                 <li style="display:flex; align-items:center; gap:10px; font-size:0.95rem; color:#374151;">
-                  <span style="color:#22c55e; font-size:1.1rem;">✓</span> WCAG 2.1 accessibility analysis
+                  <span style="color:#22c55e; font-size:1.1rem;">✓</span> WCAG 2.2 accessibility analysis
                 </li>
                 <li style="display:flex; align-items:center; gap:10px; font-size:0.95rem; color:#374151;">
                   <span style="color:#22c55e; font-size:1.1rem;">✓</span> PDF report download
@@ -1569,7 +1569,7 @@ def main():
                   </li>
                   <li style="display:flex; align-items:center; gap:10px; font-size:0.95rem; color:white;">
                     <span style="background:rgba(255,255,255,0.2); border-radius:50%; width:20px; height:20px; display:inline-flex; align-items:center; justify-content:center; font-size:0.75rem; flex-shrink:0;">&#10003;</span>
-                    Full WCAG 2.1 / ADA analysis
+                    Full WCAG 2.2 / ADA analysis
                   </li>
                   <li style="display:flex; align-items:center; gap:10px; font-size:0.95rem; color:white;">
                     <span style="background:rgba(255,255,255,0.2); border-radius:50%; width:20px; height:20px; display:inline-flex; align-items:center; justify-content:center; font-size:0.75rem; flex-shrink:0;">&#10003;</span>
