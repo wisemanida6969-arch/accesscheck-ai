@@ -555,6 +555,16 @@ STRICT RULES for code_before and code_after:
 4. Never use ellipsis (...) or comments like <!-- existing code --> to abbreviate. Write the full element.
 5. If the violation is page-level (missing <html lang>, no skip-link, etc.), code_before is the actual opening tag as found; code_after is that tag fixed.
 6. Escape quotes properly for valid JSON (\\").
+7. NEVER change the element type between code_before and code_after. If code_before is a text-only <a>Pactbug</a>, code_after must remain an <a> with text — do NOT replace it with <a><img></a>.
+8. NEVER add new elements (img, svg, etc.) that did not exist in code_before. The fix is editing/adding ATTRIBUTES on existing elements, not introducing new HTML structure.
+
+CRITICAL ANTI-HALLUCINATION RULES — read carefully:
+A. Before flagging "missing alt text", verify that code_before ACTUALLY contains an <img>, <svg role="img">, <input type="image">, or <area> element. A text-only link like <a class="logo">BrandName</a> is NOT an image and does NOT require alt text — text inside the link IS the accessible name. Do NOT flag this.
+B. Before flagging "missing label", verify that code_before contains an actual <input>, <textarea>, or <select> element. Don't flag <a>, <div>, <span> for missing labels.
+C. Before flagging "low contrast", you must be able to see explicit color/background-color values. If colors aren't visible in the HTML (handled by external CSS), do NOT guess — skip the issue.
+D. Before flagging "small target size", you must see explicit width/height. If sizes are external CSS, skip.
+E. If you are unsure whether something is truly a violation, DO NOT include it. Quality over quantity. False positives confuse users.
+F. The accessible name of a link or button can come from: visible text content, aria-label, aria-labelledby, alt on a child img, or title. If ANY of these exist, the element has an accessible name — do NOT flag it as empty/unlabeled.
 
 Apply these rules to ALL violation types: missing alt text, low contrast, missing form labels, missing focus indicators, small target size, inaccessible authentication, missing heading structure, empty links/buttons, etc.
 
