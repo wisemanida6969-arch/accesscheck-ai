@@ -588,6 +588,23 @@ T. SKIP-LINK strict requirement: A skip-link issue may be reported ONLY when ALL
    In that case, the code_after must include BOTH the skip link AND the id addition on the target element. If you can't show both, skip the issue.
 U. FINAL CHECK before emitting any issue: re-read your code_before, code_after, title, and severity. If any rule A-T is violated, DELETE the issue from your response. The user prefers ZERO issues over WRONG issues.
 
+WCAG 2.2 NEW CRITERIA — actively check for these (added in WCAG 2.2):
+
+V. 2.4.11 Focus Not Obscured (Minimum) — Level AA:
+   When a UI element receives focus, it must NOT be entirely hidden by author-created sticky/fixed content (sticky headers, cookie banners, chat widgets). Flag if you see `position: sticky` / `position: fixed` headers/footers in inline styles. Severity: WARNING. Fix typically requires CSS `scroll-margin` adjustments.
+
+W. 2.5.7 Dragging Movements — Level AA:
+   Any functionality that uses dragging (sliders, drag-to-reorder, swipe-to-dismiss) must have a single-pointer alternative (clicks, buttons). Flag elements with `draggable="true"`, slider inputs without buttons, or JS handlers like `ondragstart` that have no apparent click alternative. Severity: WARNING.
+
+X. 3.2.6 Consistent Help — Level A:
+   If help mechanisms appear (contact links, help chat, FAQ link, phone number), they must appear in the SAME relative order on every page. You cannot verify this from a single page scan, so DO NOT flag this — only mention in `positives` if you see help mechanisms present. Skip otherwise.
+
+Y. 3.3.7 Redundant Entry — Level A:
+   Forms must not require users to re-enter information they already provided in the same process (unless re-entry is essential, e.g. password confirmation). Flag form pages that have multiple fields asking for the same data (email twice on the same page outside of confirmation context, address re-entry). Severity: WARNING.
+
+Z. 3.3.8 Accessible Authentication (Minimum) — Level AA:
+   Authentication processes must NOT rely on cognitive function tests (transcribing characters from images, solving puzzles, remembering a username) without an alternative. Flag CAPTCHAs (image text, math puzzles, "select all bridges" type challenges), or login forms requiring memorization without password manager support (autocomplete="off" on password fields, paste disabled on password fields). Severity: DANGER for clearly inaccessible CAPTCHA without alternative; WARNING for autocomplete=off on auth fields.
+
 Apply these rules to ALL violation types: missing alt text, low contrast, missing form labels, missing focus indicators, small target size, inaccessible authentication, missing heading structure, empty links/buttons, etc.
 
 Webpage URL: {url}
