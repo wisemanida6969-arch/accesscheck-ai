@@ -652,17 +652,58 @@ def analyze_accessibility(url: str, html_snippet: str) -> dict:
         else:
             raise ValueError("AI returned invalid JSON. The page may be too complex. Try a simpler URL.")
 
-    # Filter out hallucinated issues where before/after are identical
+    # Filter out hallucinated / low-quality issues
     raw_issues = result.get("issues", [])
     filtered = []
     for it in raw_issues:
         cb = (it.get("code_before") or "").strip()
         ca = (it.get("code_after") or "").strip()
-        # Skip if both empty, or if they're identical (no real fix)
+        title = (it.get("title") or "").lower()
+        wcag  = (it.get("wcag_criterion") or "").lower()
+
+        # 1. Skip if before/after are identical (no real fix)
         if cb and ca and cb == ca:
             continue
+
+        # 2. Skip-link issues: must include matching id="..." on target element in code_after
+        is_skip_link_issue = "skip" in title or "bypass" in title or "2.4.1" in wcag
+        if is_skip_link_issue:
+            # Require both: a skip-link <a> AND the matching id on a target element
+            href_match = re.search(r'href="#([\w\-]+)"', ca)
+            if not href_match:
+                continue
+            target_id = href_match.group(1)
+            if f'id="{target_id}"' not in ca:
+                # Broken skip link - target id missing
+                continue
+
+        # 3. Focus indicator: reject inline `style="outline: ..."` hacks
+        if "focus" in title and 'style="outline' in ca:
+            continue
+
+        # 4. Sticky/fixed obscured focus: require sticky/fixed in code_before
+        if "obscur" in title or "2.4.11" in wcag:
+            cb_lower = cb.lower()
+            if "position: sticky" not in cb_lower and "position: fixed" not in cb_lower and "position:sticky" not in cb_lower and "position:fixed" not in cb_lower:
+                continue
+
+        # 5. Alt text on non-image element
+        if "alt" in title and "<img" not in cb.lower() and "<svg" not in cb.lower() and "<input" not in cb.lower() and "<area" not in cb.lower():
+            continue
+
+        # 6. Reject suffix-padding "fixes" for link text
+        if cb and ca and cb in ca:
+            extra = ca.replace(cb, "").strip()
+            if extra and any(suffix in extra.lower() for suffix in [" website", " page", " site", " - home", " (link)", " (page)"]):
+                continue
+
         filtered.append(it)
     result["issues"] = filtered
+
+    # Recompute counts after filtering
+    result["danger_count"]   = sum(1 for i in filtered if i.get("severity") == "DANGER")
+    result["warning_count"]  = sum(1 for i in filtered if i.get("severity") == "WARNING")
+    result["advisory_count"] = sum(1 for i in filtered if i.get("severity") == "ADVISORY")
 
     # Normalize & enrich
     issues = result.get("issues", [])
