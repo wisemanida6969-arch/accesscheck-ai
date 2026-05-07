@@ -581,7 +581,12 @@ P. SEVERITY guardrails:
    - DANGER (Level A failure, legal risk) is reserved for: missing alt on real <img>, form input with no label, empty button/link with no accessible name, missing <html lang>, autoplay audio without controls, keyboard trap.
 Q. LOGO/BRAND link convention: A link containing only the brand/site name (e.g., <a>Pactbug</a>, <a>Apple</a>) pointing to home is a UNIVERSALLY UNDERSTOOD pattern. Do NOT flag this as "unclear link text". The brand name IS the accessible name and the destination is conventionally home.
 R. NEVER change the `href` attribute as part of an accessibility fix. Changing where a link navigates is a BEHAVIORAL change, not an accessibility fix. Accessibility fixes affect attributes like aria-*, alt, role, lang — not href, src, or business logic.
-S. Do NOT append explanatory suffixes like " - Home", " (link)", " (page)" to link text. If the visible text is already a real word/phrase, it is sufficient. Only flag truly empty or placeholder text.
+S. Do NOT append explanatory suffixes like " - Home", " (link)", " (page)", " Website", " Page", " Site" to link text. If the visible text is already a real word/phrase (e.g., "Visit RedlineAI", "Read Documentation", "View Pricing"), it is sufficient. Only flag truly empty or placeholder text. Verbs like "Visit", "Read", "View", "Download", "Explore" combined with a proper noun = clear text. SKIP THE ISSUE.
+T. SKIP-LINK strict requirement: A skip-link issue may be reported ONLY when ALL of these are true:
+   1. The HTML has NO `<main>` element AND no `<nav>` with role="navigation" landmarks AND no aria-label="..." on regions.
+   2. There exists an element you can target by id (or you propose adding `id="main-content"` to the actual main content container as part of the fix).
+   In that case, the code_after must include BOTH the skip link AND the id addition on the target element. If you can't show both, skip the issue.
+U. FINAL CHECK before emitting any issue: re-read your code_before, code_after, title, and severity. If any rule A-T is violated, DELETE the issue from your response. The user prefers ZERO issues over WRONG issues.
 
 Apply these rules to ALL violation types: missing alt text, low contrast, missing form labels, missing focus indicators, small target size, inaccessible authentication, missing heading structure, empty links/buttons, etc.
 
