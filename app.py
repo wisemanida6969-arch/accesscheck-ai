@@ -466,6 +466,35 @@ def load_reports(user_email: str) -> list:
     return _sqlite_load_scans(user_email)
 
 
+def count_scans_this_month(user_email: str) -> int:
+    """Count how many scans the user has run since the 1st of the current UTC month."""
+    now = datetime.utcnow()
+    month_start = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0).isoformat()
+    if supabase:
+        try:
+            resp = (
+                supabase.table("accessibility_reports")
+                .select("id", count="exact")
+                .eq("user_email", user_email)
+                .gte("created_at", month_start)
+                .execute()
+            )
+            return resp.count or 0
+        except Exception:
+            pass
+    # SQLite fallback
+    try:
+        conn = sqlite3.connect(_SQLITE_DB)
+        row = conn.execute(
+            "SELECT COUNT(*) FROM scan_history WHERE user_email=? AND created_at >= ?",
+            (user_email, month_start.replace("T", " ")),
+        ).fetchone()
+        conn.close()
+        return row[0] if row else 0
+    except Exception:
+        return 0
+
+
 def check_subscription(user_email: str) -> bool:
     if user_email.lower() == ADMIN_EMAIL.lower():
         return True
@@ -1514,17 +1543,17 @@ def main():
             analyze_btn = st.button("🔍 Analyze Accessibility", type="primary", use_container_width=True)
         with col_info:
             if not is_pro:
-                reports = load_reports(user_email)
-                remaining = max(0, 3 - len(reports))
-                st.markdown(f'<div style="padding:10px 0; color:#6b7280; font-size:0.9rem;">Free plan: {remaining}/3 scans remaining</div>', unsafe_allow_html=True)
+                used = count_scans_this_month(user_email)
+                remaining = max(0, 3 - used)
+                st.markdown(f'<div style="padding:10px 0; color:#6b7280; font-size:0.9rem;">Free plan: {remaining}/3 scans remaining this month</div>', unsafe_allow_html=True)
 
         st.markdown("</div>", unsafe_allow_html=True)
 
         if analyze_btn and url_input:
             if not is_pro:
-                reports = load_reports(user_email)
-                if len(reports) >= 3:
-                    st.warning("⚠️ You've used all 3 free scans. Upgrade to Pro for unlimited scans.")
+                used = count_scans_this_month(user_email)
+                if used >= 3:
+                    st.warning("⚠️ You've used all 3 free scans this month. Upgrade to Pro for unlimited scans, or wait until next month.")
                     st.stop()
 
             if not OPENAI_API_KEY:
