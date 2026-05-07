@@ -697,6 +697,34 @@ def analyze_accessibility(url: str, html_snippet: str) -> dict:
             if extra and any(suffix in extra.lower() for suffix in [" website", " page", " site", " - home", " (link)", " (page)"]):
                 continue
 
+        # 7. Heading structure: must show 2+ heading elements in code_before
+        is_heading_issue = "heading" in title or "1.3.1" in wcag or "2.4.6" in wcag
+        if is_heading_issue:
+            heading_count_before = len(re.findall(r"<h[1-6][\s>]", cb, re.IGNORECASE))
+            if heading_count_before < 2:
+                continue
+            # Don't allow inventing new heading text
+            new_headings = re.findall(r"<h[1-6][^>]*>([^<]+)</h[1-6]>", ca, re.IGNORECASE)
+            old_headings = re.findall(r"<h[1-6][^>]*>([^<]+)</h[1-6]>", cb, re.IGNORECASE)
+            invented = [h for h in new_headings if h.strip() and h.strip() not in [o.strip() for o in old_headings]]
+            if invented:
+                continue
+
+        # 8. Generic safeguard: code_after must not contain >40 chars of new visible text
+        # that wasn't in code_before (catches fabricated content)
+        text_before = re.sub(r"<[^>]+>", "", cb).strip()
+        text_after  = re.sub(r"<[^>]+>", "", ca).strip()
+        if text_after and text_before:
+            # Find text in After that's not in Before
+            extra_text = text_after
+            for word in re.findall(r"\w+", text_before):
+                extra_text = extra_text.replace(word, "", 1)
+            if len(extra_text.strip()) > 40:
+                # Likely invented content - allow only known safe additions
+                safe_phrases = ["skip to main content", "skip to content"]
+                if not any(p in extra_text.lower() for p in safe_phrases):
+                    continue
+
         filtered.append(it)
     result["issues"] = filtered
 
