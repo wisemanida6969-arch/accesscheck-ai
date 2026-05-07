@@ -584,14 +584,21 @@ R. NEVER change the `href` attribute as part of an accessibility fix. Changing w
 S. Do NOT append explanatory suffixes like " - Home", " (link)", " (page)", " Website", " Page", " Site" to link text. If the visible text is already a real word/phrase (e.g., "Visit RedlineAI", "Read Documentation", "View Pricing"), it is sufficient. Only flag truly empty or placeholder text. Verbs like "Visit", "Read", "View", "Download", "Explore" combined with a proper noun = clear text. SKIP THE ISSUE.
 T. SKIP-LINK strict requirement: A skip-link issue may be reported ONLY when ALL of these are true:
    1. The HTML has NO `<main>` element AND no `<nav>` with role="navigation" landmarks AND no aria-label="..." on regions.
-   2. There exists an element you can target by id (or you propose adding `id="main-content"` to the actual main content container as part of the fix).
-   In that case, the code_after must include BOTH the skip link AND the id addition on the target element. If you can't show both, skip the issue.
+   2. code_after MUST show TWO elements being added together: (a) the skip link itself, AND (b) the matching id="..." on the target main content element. Showing only one half is a broken fix.
+   EXAMPLE of valid code_after (must be present in JSON, both parts):
+     "<body>\\n  <a href=\\"#main-content\\" class=\\"skip-link\\">Skip to main content</a>\\n  <header>...existing...</header>\\n  <main id=\\"main-content\\">...existing main content...</main>\\n</body>"
+   If you cannot show the matching id addition together with the skip link, OR if `<main>` already exists (even without an id), SKIP the issue. Browsers and screen readers can navigate by landmarks without explicit skip links.
 U. FINAL CHECK before emitting any issue: re-read your code_before, code_after, title, and severity. If any rule A-T is violated, DELETE the issue from your response. The user prefers ZERO issues over WRONG issues.
 
 WCAG 2.2 NEW CRITERIA — actively check for these (added in WCAG 2.2):
 
 V. 2.4.11 Focus Not Obscured (Minimum) — Level AA:
-   When a UI element receives focus, it must NOT be entirely hidden by author-created sticky/fixed content (sticky headers, cookie banners, chat widgets). Flag if you see `position: sticky` / `position: fixed` headers/footers in inline styles. Severity: WARNING. Fix typically requires CSS `scroll-margin` adjustments.
+   This issue exists ONLY when an element ALREADY has `position: sticky` or `position: fixed` IN code_before. You MUST see the actual sticky/fixed declaration in the HTML inline style or in a visible <style> tag.
+   - DO NOT flag a plain `<nav>`, `<header>`, or `<footer>` without explicit sticky/fixed positioning.
+   - DO NOT propose ADDING `position: sticky` as a fix — that CREATES the problem, not solves it.
+   - Valid fix patterns: REMOVE the sticky positioning, or ADD `scroll-margin-top: <value>` to focusable children, or ensure z-index allows focus to remain visible.
+   - If code_before has no sticky/fixed, SKIP the issue entirely.
+   Severity: WARNING.
 
 W. 2.5.7 Dragging Movements — Level AA:
    Any functionality that uses dragging (sliders, drag-to-reorder, swipe-to-dismiss) must have a single-pointer alternative (clicks, buttons). Flag elements with `draggable="true"`, slider inputs without buttons, or JS handlers like `ondragstart` that have no apparent click alternative. Severity: WARNING.
