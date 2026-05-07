@@ -570,6 +570,10 @@ H. NEVER suggest inline `style="outline: ..."` as a focus fix. Inline styles are
 I. For "unclear link text" (WCAG 2.4.4), ONLY flag truly generic phrases: "click here", "here", "read more", "more", "link", "this", or empty links. Phrases that include a noun describing the destination ("Explore Our Products", "View Pricing", "Download Report", "Read the Guide") are CLEAR — do NOT flag them.
 J. NEVER change the user-visible business copy as a "fix" (e.g., do not turn "Explore Our Products" into "Explore Our AI Products"). Accessibility fixes change attributes (alt, aria-*, role, lang, tabindex) or add hidden helper elements, NOT marketing wording.
 K. If a fix would require external CSS that you cannot see (focus styles, contrast, hover states, target size), explicitly skip the issue rather than guessing inline-style hacks.
+L. NEVER submit an issue where code_before and code_after are identical or differ only in whitespace. If you cannot produce a concrete attribute/structure change, the issue is not a real violation — skip it.
+M. For "improper heading structure" / "heading order": ONLY flag if you can identify the SPECIFIC out-of-order or skipped level (e.g., page jumps from h1 to h3 with no h2). Provide a real before/after that fixes the level (h3→h2). Do NOT flag a single heading in isolation — heading structure is a multi-element concern.
+N. For "skip link" suggestions: only propose `href="#X"` when an element with id="X" already exists in the HTML below. If no main/content landmark with an id is present, propose `<main id="main-content">` change instead, OR skip the issue. A skip link to a non-existent id is broken.
+O. The TITLE of the issue must accurately match what code_before actually shows. Do not say "Missing alt text" if code_before contains no <img>. Do not say "Improper heading structure" if code_before contains a single, properly-leveled heading.
 
 Apply these rules to ALL violation types: missing alt text, low contrast, missing form labels, missing focus indicators, small target size, inaccessible authentication, missing heading structure, empty links/buttons, etc.
 
@@ -610,6 +614,18 @@ def analyze_accessibility(url: str, html_snippet: str) -> dict:
                 continue
         else:
             raise ValueError("AI returned invalid JSON. The page may be too complex. Try a simpler URL.")
+
+    # Filter out hallucinated issues where before/after are identical
+    raw_issues = result.get("issues", [])
+    filtered = []
+    for it in raw_issues:
+        cb = (it.get("code_before") or "").strip()
+        ca = (it.get("code_after") or "").strip()
+        # Skip if both empty, or if they're identical (no real fix)
+        if cb and ca and cb == ca:
+            continue
+        filtered.append(it)
+    result["issues"] = filtered
 
     # Normalize & enrich
     issues = result.get("issues", [])
