@@ -665,16 +665,27 @@ def analyze_accessibility(url: str, html_snippet: str) -> dict:
         if cb and ca and cb == ca:
             continue
 
-        # 2. Skip-link issues: must include matching id="..." on target element in code_after
+        # 2. Skip-link issues: must include matching id="..." in code_after,
+        #    AND the original page must have NO landmarks. Modern landmarked
+        #    pages already satisfy WCAG 2.4.1 via screen-reader landmark navigation.
         is_skip_link_issue = "skip" in title or "bypass" in title or "2.4.1" in wcag
         if is_skip_link_issue:
-            # Require both: a skip-link <a> AND the matching id on a target element
+            # If the page already has any landmark element, suppress the issue
+            html_lower = html_snippet.lower()
+            has_landmark = any(token in html_lower for token in [
+                "<main", "role=\"main\"", "role='main'",
+                "<nav", "role=\"navigation\"", "role='navigation'",
+                "role=\"banner\"", "role=\"contentinfo\"", "role=\"complementary\"",
+                "<header", "<footer", "<aside",
+            ])
+            if has_landmark:
+                continue
+            # Otherwise still require a complete fix
             href_match = re.search(r'href="#([\w\-]+)"', ca)
             if not href_match:
                 continue
             target_id = href_match.group(1)
             if f'id="{target_id}"' not in ca:
-                # Broken skip link - target id missing
                 continue
 
         # 3. Focus indicator: reject inline `style="outline: ..."` hacks
