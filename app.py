@@ -565,6 +565,11 @@ C. Before flagging "low contrast", you must be able to see explicit color/backgr
 D. Before flagging "small target size", you must see explicit width/height. If sizes are external CSS, skip.
 E. If you are unsure whether something is truly a violation, DO NOT include it. Quality over quantity. False positives confuse users.
 F. The accessible name of a link or button can come from: visible text content, aria-label, aria-labelledby, alt on a child img, or title. If ANY of these exist, the element has an accessible name — do NOT flag it as empty/unlabeled.
+G. NEVER flag "focus indicator missing" based on HTML alone. Focus styles live in CSS (:focus, :focus-visible). You cannot determine focus visibility from HTML. Browsers also provide default focus rings. Skip this issue unless you can SEE explicit `outline: none` or `outline: 0` in inline styles.
+H. NEVER suggest inline `style="outline: ..."` as a focus fix. Inline styles are always-on; focus indicators must use CSS pseudo-classes (:focus-visible). If you can't write a proper CSS rule fix, skip the issue.
+I. For "unclear link text" (WCAG 2.4.4), ONLY flag truly generic phrases: "click here", "here", "read more", "more", "link", "this", or empty links. Phrases that include a noun describing the destination ("Explore Our Products", "View Pricing", "Download Report", "Read the Guide") are CLEAR — do NOT flag them.
+J. NEVER change the user-visible business copy as a "fix" (e.g., do not turn "Explore Our Products" into "Explore Our AI Products"). Accessibility fixes change attributes (alt, aria-*, role, lang, tabindex) or add hidden helper elements, NOT marketing wording.
+K. If a fix would require external CSS that you cannot see (focus styles, contrast, hover states, target size), explicitly skip the issue rather than guessing inline-style hacks.
 
 Apply these rules to ALL violation types: missing alt text, low contrast, missing form labels, missing focus indicators, small target size, inaccessible authentication, missing heading structure, empty links/buttons, etc.
 
