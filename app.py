@@ -574,6 +574,14 @@ L. NEVER submit an issue where code_before and code_after are identical or diffe
 M. For "improper heading structure" / "heading order": ONLY flag if you can identify the SPECIFIC out-of-order or skipped level (e.g., page jumps from h1 to h3 with no h2). Provide a real before/after that fixes the level (h3→h2). Do NOT flag a single heading in isolation — heading structure is a multi-element concern.
 N. For "skip link" suggestions: only propose `href="#X"` when an element with id="X" already exists in the HTML below. If no main/content landmark with an id is present, propose `<main id="main-content">` change instead, OR skip the issue. A skip link to a non-existent id is broken.
 O. The TITLE of the issue must accurately match what code_before actually shows. Do not say "Missing alt text" if code_before contains no <img>. Do not say "Improper heading structure" if code_before contains a single, properly-leveled heading.
+P. SEVERITY guardrails:
+   - "Missing skip link" is at most ADVISORY. NEVER DANGER or WARNING. WCAG 2.4.1 is satisfied by landmarks (<main>, <nav>) which most modern sites have.
+   - "Unclear link text" is at most ADVISORY. NEVER DANGER. It only escalates to WARNING for empty buttons/links with no accessible name at all.
+   - "Improper heading order" is ADVISORY unless h1 is missing entirely.
+   - DANGER (Level A failure, legal risk) is reserved for: missing alt on real <img>, form input with no label, empty button/link with no accessible name, missing <html lang>, autoplay audio without controls, keyboard trap.
+Q. LOGO/BRAND link convention: A link containing only the brand/site name (e.g., <a>Pactbug</a>, <a>Apple</a>) pointing to home is a UNIVERSALLY UNDERSTOOD pattern. Do NOT flag this as "unclear link text". The brand name IS the accessible name and the destination is conventionally home.
+R. NEVER change the `href` attribute as part of an accessibility fix. Changing where a link navigates is a BEHAVIORAL change, not an accessibility fix. Accessibility fixes affect attributes like aria-*, alt, role, lang — not href, src, or business logic.
+S. Do NOT append explanatory suffixes like " - Home", " (link)", " (page)" to link text. If the visible text is already a real word/phrase, it is sufficient. Only flag truly empty or placeholder text.
 
 Apply these rules to ALL violation types: missing alt text, low contrast, missing form labels, missing focus indicators, small target size, inaccessible authentication, missing heading structure, empty links/buttons, etc.
 
