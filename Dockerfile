@@ -9,6 +9,8 @@ RUN apt-get update && apt-get install -y \
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Cache-bust: 2026-05-07
+ARG CACHEBUST=1
 COPY . .
 
 # Inject SEO meta tags into Streamlit's index.html
