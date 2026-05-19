@@ -1401,7 +1401,7 @@ def render_landing():
         unsafe_allow_html=True,
     )
 
-    st.components.v1.html(html, height=4600, scrolling=True)
+    st.components.v1.html(html, height=4900, scrolling=True)
 
 
 def render_legal_page(page_key: str):
