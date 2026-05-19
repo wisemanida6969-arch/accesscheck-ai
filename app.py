@@ -4,6 +4,7 @@ import json
 import sqlite3
 import requests
 import re
+import pathlib
 from datetime import datetime
 from urllib.parse import urlencode
 from bs4 import BeautifulSoup
@@ -1359,6 +1360,50 @@ If you are not satisfied with our response, you may contact the relevant disabil
 }
 
 
+_LANDING_PATH = pathlib.Path(__file__).parent / "landing.html"
+
+
+def render_landing():
+    """Render the marketing landing page for logged-out visitors."""
+    try:
+        html = _LANDING_PATH.read_text(encoding="utf-8")
+    except Exception:
+        # Fallback if landing.html is missing
+        st.error("Landing page not available.")
+        return
+
+    oauth_url = get_google_login_url()
+
+    # Inject OAuth URL into every placeholder home link
+    html = html.replace("https://access.trytimeback.com", oauth_url)
+
+    # Add target="_top" to every <a> so navigation breaks out of the iframe
+    html = re.sub(r'<a (?!.*?target=)', '<a target="_top" ', html)
+
+    # Convert the JS button to top-window navigation
+    html = re.sub(
+        r"window\.location\.href\s*=\s*['\"][^'\"]+['\"]",
+        f"window.top.location.href='{oauth_url}'",
+        html,
+    )
+
+    # Hide Streamlit chrome so the landing fills the viewport
+    st.markdown(
+        """
+        <style>
+          header[data-testid="stHeader"] { display: none !important; }
+          [data-testid="stAppViewBlockContainer"] { padding: 0 !important; max-width: 100% !important; }
+          .main .block-container { padding: 0 !important; max-width: 100% !important; }
+          [data-testid="stSidebar"] { display: none !important; }
+          .stApp { background: #0a0e1a; }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    st.components.v1.html(html, height=4600, scrolling=True)
+
+
 def render_legal_page(page_key: str):
     page = LEGAL_PAGES.get(page_key)
     if not page:
@@ -1385,126 +1430,15 @@ def main():
         render_legal_page(legal_param)
         return
 
-    render_hero()
-
     # ─── Auth Check ───
     if not st.session_state.get("logged_in"):
         # Try to restore session from localStorage (mobile-safe)
         inject_session_restore()
-
-        st.markdown("""
-        <div class="card" style="max-width:520px; margin:0 auto; text-align:center;">
-          <h2 style="color:#1e40af; margin-bottom:8px;">Get Started Free</h2>
-          <p style="color:#6b7280; margin-bottom:24px;">
-            Sign in with Google to analyze your website's accessibility.<br>
-            First 3 scans free — Pro plan $29/month for unlimited scans.
-          </p>
-        """, unsafe_allow_html=True)
-
-        login_url = get_google_login_url()
-        st.markdown(f"""
-          <a href="{login_url}" style="display:inline-block; background:#1e40af; color:white;
-             font-weight:600; padding:14px 32px; border-radius:8px; text-decoration:none;
-             font-size:1rem; margin-bottom:20px;">
-            🔐 Sign in with Google
-          </a>
-        """, unsafe_allow_html=True)
-
-        st.markdown("""
-          <div style="color:#9ca3af; font-size:0.85rem;">
-            By signing in, you agree to our Terms of Service
-          </div>
-        </div>
-        """, unsafe_allow_html=True)
-
-        st.markdown("---")
-        st.markdown("""
-        <div style="text-align:center; padding:20px 0;">
-          <h3 style="color:#374151;">What AccessCheck AI Analyzes</h3>
-        </div>
-        """, unsafe_allow_html=True)
-
-        c1, c2, c3 = st.columns(3)
-        features = [
-            ("🖼️", "Alt Text & Images", "Checks all images for descriptive alt text per WCAG 1.1.1"),
-            ("⌨️", "Keyboard Navigation", "Verifies all interactive elements are keyboard accessible"),
-            ("🎨", "Color Contrast", "Ensures text meets 4.5:1 contrast ratio requirements"),
-            ("📋", "Forms & Labels", "Checks form fields have proper labels and error messages"),
-            ("🔗", "Links & Buttons", "Validates descriptive link text and button labels"),
-            ("📱", "Screen Reader", "Tests ARIA roles, landmarks, and semantic HTML structure"),
-        ]
-        for col, (icon, title, desc) in zip([c1, c2, c3, c1, c2, c3], features):
-            with col:
-                st.markdown(f"""
-                <div class="card" style="text-align:center; padding:20px;">
-                  <div style="font-size:2rem; margin-bottom:8px;">{icon}</div>
-                  <div style="font-weight:600; color:#1e40af; margin-bottom:6px;">{title}</div>
-                  <div style="font-size:0.85rem; color:#6b7280;">{desc}</div>
-                </div>""", unsafe_allow_html=True)
-
-        # ─── Footer ───
-        st.components.v1.html("""
-        <div style="font-family:'Inter',sans-serif; margin-top:60px; border-top:1px solid #e5e7eb; padding-top:40px;">
-          <div style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:32px; margin-bottom:40px;">
-
-            <div style="min-width:200px;">
-              <div style="font-weight:700; color:#1e40af; font-size:1.1rem; margin-bottom:12px;">&#9855; AccessCheck AI</div>
-              <div style="color:#6b7280; font-size:0.88rem; line-height:1.7;">
-                AI-powered WCAG 2.2 &amp; ADA<br>accessibility analysis tool.<br>
-                Built for developers, designers,<br>and compliance teams.
-              </div>
-            </div>
-
-            <div style="min-width:140px;">
-              <div style="font-weight:600; color:#374151; margin-bottom:12px; font-size:0.9rem;">Product</div>
-              <div style="display:flex; flex-direction:column; gap:8px; font-size:0.88rem; color:#6b7280;">
-                <span>Features</span>
-                <span>Pricing</span>
-                <span>WCAG 2.2 Guide</span>
-                <span>ADA Compliance</span>
-              </div>
-            </div>
-
-            <div style="min-width:160px;">
-              <div style="font-weight:600; color:#374151; margin-bottom:12px; font-size:0.9rem;">Legal</div>
-              <div style="display:flex; flex-direction:column; gap:8px; font-size:0.88rem;">
-                <a href="?legal=terms" style="color:#6b7280; text-decoration:none;">Terms of Service</a>
-                <a href="?legal=privacy" style="color:#6b7280; text-decoration:none;">Privacy Policy</a>
-                <a href="?legal=cookies" style="color:#6b7280; text-decoration:none;">Cookie Policy</a>
-                <a href="?legal=refund" style="color:#6b7280; text-decoration:none;">Refund Policy</a>
-                <a href="?legal=accessibility" style="color:#6b7280; text-decoration:none;">Accessibility Statement</a>
-              </div>
-            </div>
-
-            <div style="min-width:200px;">
-              <div style="font-weight:600; color:#374151; margin-bottom:12px; font-size:0.9rem;">Contact &amp; Support</div>
-              <div style="display:flex; flex-direction:column; gap:8px; font-size:0.88rem; color:#6b7280;">
-                <span>&#128231; <a href="mailto:admin@trytimeback.com" style="color:#1e40af; text-decoration:none;">admin@trytimeback.com</a></span>
-                <span>Response within 24 hours</span>
-                <span style="margin-top:6px; color:#374151; font-weight:500;">Part of Trytimeback</span>
-                <span><a href="https://trytimeback.com" target="_blank" style="color:#1e40af; text-decoration:none;">trytimeback.com</a></span>
-              </div>
-            </div>
-
-          </div>
-
-          <div style="border-top:1px solid #f3f4f6; padding-top:20px; display:flex; justify-content:space-between; flex-wrap:wrap; gap:12px; align-items:center;">
-            <div style="color:#9ca3af; font-size:0.82rem;">
-              &copy; 2026 AccessCheck AI &middot; All rights reserved &middot; Powered by Trytimeback
-            </div>
-            <div style="color:#9ca3af; font-size:0.82rem; display:flex; gap:12px; flex-wrap:wrap;">
-              <a href="?legal=terms" style="color:#9ca3af; text-decoration:none;">Terms of Service</a>
-              <span>&middot;</span>
-              <a href="?legal=privacy" style="color:#9ca3af; text-decoration:none;">Privacy Policy</a>
-              <span>&middot;</span>
-              <a href="?legal=cookies" style="color:#9ca3af; text-decoration:none;">Cookie Policy</a>
-              <span>&middot;</span>
-              <a href="?legal=refund" style="color:#9ca3af; text-decoration:none;">Refund Policy</a>
-            </div>
-          </div>
-        </div>
-        """, height=320)
+        # Show marketing landing page
+        render_landing()
         return
+
+    render_hero()
 
     # ─── Logged In ───
     user_info  = st.session_state.get("user_info", {})
