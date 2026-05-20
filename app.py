@@ -1374,26 +1374,42 @@ def render_landing():
 
     oauth_url = get_google_login_url()
     site_origin = "https://access.trytimeback.com/"
+    # Escape for safe injection into JS string literal
+    safe_oauth = oauth_url.replace("\\", "\\\\").replace("'", "\\'")
 
     # Inject OAuth URL into every placeholder home link
     html = html.replace("https://access.trytimeback.com", oauth_url)
 
-    # CRITICAL: inject <base> tag + target="_top" default + 100vh override.
-    # Without <base>, relative URLs like "?legal=terms" resolve to "about:srcdoc"
-    # inside the iframe and break.
+    # CRITICAL: inject <base> tag + 100vh override + universal click handler.
     iframe_head_fix = f"""
     <base href="{site_origin}" target="_top">
     <style>
       .hero {{ min-height: auto !important; padding: 7rem 2rem 5rem !important; }}
       body {{ overflow-x: hidden; }}
     </style>
+    <script>
+      // Universal handler: any element with data-action="login" or href that starts
+      // with the OAuth host will force top-window navigation to the OAuth URL.
+      window.__OAUTH_URL__ = '{safe_oauth}';
+      document.addEventListener('DOMContentLoaded', function() {{
+        document.body.addEventListener('click', function(e) {{
+          var t = e.target.closest('a, button');
+          if (!t) return;
+          var href = (t.getAttribute('href') || '').trim();
+          if (href.indexOf('accounts.google.com') !== -1) {{
+            e.preventDefault();
+            window.top.location.href = window.__OAUTH_URL__;
+          }}
+        }}, true);
+      }});
+    </script>
     """
     html = html.replace("</head>", iframe_head_fix + "</head>")
 
-    # Convert the JS button to top-window navigation
+    # Convert any onclick window.location.href to top-window
     html = re.sub(
         r"window\.location\.href\s*=\s*['\"][^'\"]+['\"]",
-        f"window.top.location.href='{oauth_url}'",
+        f"window.top.location.href='{safe_oauth}'",
         html,
     )
 
