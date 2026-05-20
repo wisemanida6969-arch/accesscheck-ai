@@ -1377,6 +1377,16 @@ def render_landing():
     # Inject OAuth URL into every placeholder home link
     html = html.replace("https://access.trytimeback.com", oauth_url)
 
+    # Override 100vh inside the iframe — iframe height is 4900px so 100vh would
+    # make sections absurdly tall and push content off-screen.
+    iframe_css_fix = """
+    <style>
+      .hero { min-height: auto !important; padding: 7rem 2rem 5rem !important; }
+      body { overflow-x: hidden; }
+    </style>
+    """
+    html = html.replace("</head>", iframe_css_fix + "</head>")
+
     # Add target="_top" to every <a> so navigation breaks out of the iframe
     html = re.sub(r'<a (?!.*?target=)', '<a target="_top" ', html)
 
