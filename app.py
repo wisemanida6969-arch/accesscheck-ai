@@ -1397,21 +1397,37 @@ def render_landing():
         html,
     )
 
-    # Hide Streamlit chrome so the landing fills the viewport
+    # Hide Streamlit chrome and remove ALL top spacing
     st.markdown(
         """
         <style>
-          header[data-testid="stHeader"] { display: none !important; }
-          [data-testid="stAppViewBlockContainer"] { padding: 0 !important; max-width: 100% !important; }
-          .main .block-container { padding: 0 !important; max-width: 100% !important; }
+          header[data-testid="stHeader"] { display: none !important; height: 0 !important; }
+          [data-testid="stToolbar"] { display: none !important; }
+          [data-testid="stDecoration"] { display: none !important; }
+          [data-testid="stStatusWidget"] { display: none !important; }
+          [data-testid="stAppViewBlockContainer"] {
+            padding: 0 !important;
+            padding-top: 0 !important;
+            max-width: 100% !important;
+          }
+          .main .block-container,
+          .main > div:first-child,
+          section.main > div {
+            padding: 0 !important;
+            padding-top: 0 !important;
+            margin-top: 0 !important;
+            max-width: 100% !important;
+          }
           [data-testid="stSidebar"] { display: none !important; }
+          [data-testid="stAppViewContainer"] > section { padding: 0 !important; }
           .stApp { background: #0a0e1a; }
+          iframe { display: block !important; margin: 0 !important; }
         </style>
         """,
         unsafe_allow_html=True,
     )
 
-    st.components.v1.html(html, height=4900, scrolling=True)
+    st.components.v1.html(html, height=4200, scrolling=False)
 
 
 def render_legal_page(page_key: str):
