@@ -9,9 +9,20 @@ RUN apt-get update && apt-get install -y \
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Cache-bust: 2026-05-20-landing
-ARG CACHEBUST=20260520
-COPY . .
+# Force cache invalidation by injecting build version into env layer
+ENV BUILD_VERSION=2026-05-20-landing-v3
+RUN echo "Building version $BUILD_VERSION"
+
+# Copy individual files / dirs so a single-file change creates a unique layer
+COPY app.py ./app.py
+COPY landing.html ./landing.html
+COPY patch_a11y.py ./patch_a11y.py
+COPY static ./static
+COPY .streamlit ./.streamlit
+
+# Verify critical files are present (build fails loudly if missing)
+RUN test -f /app/landing.html && head -3 /app/landing.html
+RUN grep -q "render_landing" /app/app.py && echo "app.py has render_landing - OK"
 
 # Inject SEO meta tags into Streamlit's index.html
 RUN STREAMLIT_INDEX=$(python -c "import streamlit, os; print(os.path.join(os.path.dirname(streamlit.__file__), 'static', 'index.html'))") && \
