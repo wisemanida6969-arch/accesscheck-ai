@@ -1373,22 +1373,22 @@ def render_landing():
         return
 
     oauth_url = get_google_login_url()
+    site_origin = "https://access.trytimeback.com/"
 
     # Inject OAuth URL into every placeholder home link
     html = html.replace("https://access.trytimeback.com", oauth_url)
 
-    # Override 100vh inside the iframe — iframe height is 4900px so 100vh would
-    # make sections absurdly tall and push content off-screen.
-    iframe_css_fix = """
+    # CRITICAL: inject <base> tag + target="_top" default + 100vh override.
+    # Without <base>, relative URLs like "?legal=terms" resolve to "about:srcdoc"
+    # inside the iframe and break.
+    iframe_head_fix = f"""
+    <base href="{site_origin}" target="_top">
     <style>
-      .hero { min-height: auto !important; padding: 7rem 2rem 5rem !important; }
-      body { overflow-x: hidden; }
+      .hero {{ min-height: auto !important; padding: 7rem 2rem 5rem !important; }}
+      body {{ overflow-x: hidden; }}
     </style>
     """
-    html = html.replace("</head>", iframe_css_fix + "</head>")
-
-    # Add target="_top" to every <a> so navigation breaks out of the iframe
-    html = re.sub(r'<a (?!.*?target=)', '<a target="_top" ', html)
+    html = html.replace("</head>", iframe_head_fix + "</head>")
 
     # Convert the JS button to top-window navigation
     html = re.sub(
